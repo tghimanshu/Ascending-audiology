@@ -54,12 +54,12 @@ def pdf():
     x = "my.pdf"
     with open('index.html', 'r') as f:
         html_file = f.read()
-    html_file.replace('^name^', name_entry.get())
-    html_file.replace('^age^', age_entry.get())
-    html_file.replace('^gender^', gender_entry.get())
-    html_file.replace('^case^', case_entry.get())
-    html_file.replace('^complaints^', complaint_entry.get())
-    html_file.replace('^reccomendation^', rec_entry.get())
+    html_file = html_file.replace('^name^', name_entry.get())
+    html_file = html_file.replace('^age^', age_entry.get())
+    html_file = html_file.replace('^gender^', gender_entry.get())
+    html_file = html_file.replace('^case^', case_entry.get())
+    html_file = html_file.replace('^complaints^', complaint_entry.get())
+    html_file = html_file.replace('^reccomendation^', rec_entry.get())
     # content = txbx.get("0.0", tk.END)
     # pdfkit.from_string(content, x)
     pdfkit.from_string(html_file, x)
