@@ -1,6 +1,8 @@
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk
+from tkinterhtml import HtmlFrame
+import webbrowser
 
 root = tk.Tk()
 root.title('Ascending Audiology')
@@ -52,7 +54,7 @@ rec_entry.grid(row=6, column=1, pady=10)
 
 def pdf():
     x = "my.pdf"
-    with open('index.html', 'r') as f:
+    with open('template/pdf.html', 'r') as f:
         html_file = f.read()
     html_file = html_file.replace('^name^', name_entry.get())
     html_file = html_file.replace('^age^', age_entry.get())
@@ -66,7 +68,24 @@ def pdf():
     print("pdf created")
     os.startfile("my.pdf")
     print(name_entry.get(), rec_entry.get())
-Button(root, text="print", font=("Courier", 18), command=pdf).grid(row=7, column=0)
+
+def html():
+    data = tk.Tk()
+    with open('template/pdf.html', 'r') as f:
+        html_file = f.read()
+    html_file = html_file.replace('^name^', name_entry.get())
+    html_file = html_file.replace('^age^', age_entry.get())
+    html_file = html_file.replace('^gender^', gender_entry.get())
+    html_file = html_file.replace('^case^', case_entry.get())
+    html_file = html_file.replace('^complaints^', complaint_entry.get())
+    html_file = html_file.replace('^reccomendation^', rec_entry.get())
+    data.geometry('1280x720')
+    dframe = HtmlFrame(data, horizontal_scrollbar="auto")
+    dframe.pack()
+    dframe.set_content(html_file)
+    # webbrowser.open('template/pdf.html')
+ 
+Button(root, text="print", font=("Courier", 18), command=html).grid(row=7, column=0)
 
 
 

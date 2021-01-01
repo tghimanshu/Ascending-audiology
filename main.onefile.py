@@ -2,6 +2,8 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
+import pyscreenshot as ImageGrab 
+
 
 window = Tk()
 # from Graph.canvas import *
@@ -294,8 +296,16 @@ def display_points():
 def bind_remove_points():
     c.unbind('<Button-1>')
     c.bind('<Button-1>', remove_points)
+
+def export_image():
+    box = (c.winfo_rootx(),c.winfo_rooty(),c.winfo_rootx()+c.winfo_width(),c.winfo_rooty() + c.winfo_height())
+    grab = ImageGrab.grab(bbox=box)
+    grab.save('fileName.png')
+
+
 blue_sq_bkt_btn = Button(canvas_symbols, text='get points', command=display_points).grid(row=4, column=2)
 blue_sq_bkt_btn = Button(canvas_symbols, text='Remove Points', command=bind_remove_points).grid(row=4, column=3)
+blue_sq_bkt_btn = Button(canvas_symbols, text='Export Image', command=export_image).grid(row=4, column=4)
 canvas_symbols.grid(row=4, column=0)
 
 
