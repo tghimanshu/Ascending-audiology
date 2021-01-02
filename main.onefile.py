@@ -11,7 +11,7 @@ and   All left ear graph code is prefixed with re_
 '''
 
 window = Tk()
-window.geometry('1000x1000')
+window.geometry('1200x1000')
 # from Graph.canvas import *
 
 points = {
@@ -25,6 +25,8 @@ points = {
     'blue_sq_bkt': [],   
     'red_circle_nr':[],
     'blue_X_nr':[],
+    'red_triangle_nr':[],
+    'blue_square_nr':[],
     'red_open_bracket_nr':[],
     'blue_close_bracket_nr':[],
     'red_sq_bkt_nr':[],
@@ -42,6 +44,8 @@ points_count = {
     'blue_sq_bkt':0,  
     'red_circle_nr':0,
     'blue_X_nr':0,
+    'red_triangle_nr':0,
+    'blue_square_nr':0,
     'red_open_bracket_nr':0,
     'blue_close_bracket_nr':0,
     'red_sq_bkt_nr':0,
@@ -84,12 +88,18 @@ ov_size = (6, 6)
 for i in range(0, Y, GRID):
     c.create_line(0, i, X, i, fill='#999')
 for i in range(0, X, GRID):
-    c.create_line(i, 0, i, Y, fill='#999')
+    if (i%2==0 and i != 0):
+        c.create_line(i, 0, i, Y, dash=(1,1), fill='#999')
+    else:
+        c.create_line(i, 0, i, Y, fill='#999')
 
-for i in range(0, Y, GRID):
+for i in range(0, Y+GRID, GRID):
     c2.create_line(0, i, X, i, fill='#999')
-for i in range(0, X, GRID):
-    c2.create_line(i, 0, i, Y, fill='#999')
+for i in range(0, X+GRID, GRID):
+    if (i%2==0 and i != 0):
+        c2.create_line(i, 0, i, Y, dash=(1,1), fill='#999')
+    else:
+        c2.create_line(i, 0, i, Y, fill='#999')
 
 ov = c.create_oval(-3, -3, 3, 3, tags='le_point', fill='red')
 ov = c2.create_oval(-3, -3, 3, 3, tags='re_point', fill='red')
@@ -184,7 +194,9 @@ def le_create_graph_lines():
 
     temp_points = {
         'red_circle': points['red_circle']+points['red_circle_nr'],
+        'red_triangle': points['red_triangle']+points['red_triangle_nr'],
          'blue_X': points['blue_X']+points['blue_X_nr'],
+         'blue_square': points['blue_square']+points['blue_square_nr'],
          'red_open_bracket':points['red_open_bracket']+points['red_open_bracket_nr'],
          'blue_close_bracket': points['blue_close_bracket']+points['blue_close_bracket_nr'],
          'red_sq_bkt': points['red_sq_bkt']+points['red_sq_bkt_nr'],
@@ -206,7 +218,9 @@ def re_create_graph_lines():
 
     temp_points = {
         'red_circle': points['red_circle']+points['red_circle_nr'],
+        'red_triangle': points['red_triangle']+points['red_triangle_nr'],
          'blue_X': points['blue_X']+points['blue_X_nr'],
+         'blue_square': points['blue_square']+points['blue_square_nr'],
          'red_open_bracket':points['red_open_bracket']+points['red_open_bracket_nr'],
          'blue_close_bracket': points['blue_close_bracket']+points['blue_close_bracket_nr'],
          'red_sq_bkt': points['red_sq_bkt']+points['red_sq_bkt_nr'],
@@ -379,11 +393,11 @@ blue_X_nr = blue_X_nr.resize((30, 30), Image.ANTIALIAS)
 blue_X_nr = ImageTk.PhotoImage(blue_X_nr)
 
 red_triangle_nr = Image.open("images/red_triangle_nr.png")
-red_triangle_nr = red_triangle_nr.resize((15, 15), Image.ANTIALIAS)
+red_triangle_nr = red_triangle_nr.resize((30, 30), Image.ANTIALIAS)
 red_triangle_nr = ImageTk.PhotoImage(red_triangle_nr)
 
 blue_square_nr = Image.open("images/blue_square_nr.png")
-blue_square_nr = blue_square_nr.resize((15, 15), Image.ANTIALIAS)
+blue_square_nr = blue_square_nr.resize((30, 30), Image.ANTIALIAS)
 blue_square_nr = ImageTk.PhotoImage(blue_square_nr)
 
 red_open_bracket_nr = Image.open("images/red_open_bracket_nr.png")
@@ -445,6 +459,7 @@ def display_points():
     print(points)
     for a in points.values():
         print(len(a))
+
 def bind_remove_points():
     c.unbind('<Button-1>')
     c.bind('<Button-1>', le_remove_points)
@@ -456,6 +471,15 @@ def export_image():
     grab = ImageGrab.grab(bbox=box)
     grab.save('fileName.png')
 
+def take_ss():
+    box = (le_graph_frame.winfo_rootx(),le_graph_frame.winfo_rooty(),le_graph_frame.winfo_rootx()+le_graph_frame.winfo_width(),le_graph_frame.winfo_rooty() + le_graph_frame.winfo_height())
+    box2 = (re_graph_frame.winfo_rootx(), re_graph_frame.winfo_rooty(), re_graph_frame.winfo_rootx() + re_graph_frame.winfo_width(), re_graph_frame.winfo_rooty() + re_graph_frame.winfo_height())
+    c.itemconfigure('le_point', state='hidden')
+    c2.itemconfigure('re_point', state='hidden')
+    grab = ImageGrab.grab(bbox=box)
+    grab2 = ImageGrab.grab(bbox=box2)
+    grab.save('template/right_ear.png')
+    grab2.save('template/left_ear.png')
 
 blue_sq_bkt_btn = Button(canvas_symbols, text='get points', command=display_points).grid(row=4, column=2)
 blue_sq_bkt_btn = Button(canvas_symbols, text='Remove Points', command=bind_remove_points).grid(row=4, column=3)
@@ -476,5 +500,7 @@ um_bc = Button(graph_button_frame, text="Unmasked BC NR", command=lambda x='red_
 m_bc = Button(graph_button_frame, text="Masked BC NR", command=lambda x='red_sq_bkt_nr', y='blue_sq_bkt_nr': insert_image(x, y)).pack()
 
 rem_points = Button(graph_button_frame, text='Remove Points', command=bind_remove_points).pack()
+
+span_ss = Button(graph_button_frame, text='Get SS', command=take_ss).pack()
 
 window.mainloop()

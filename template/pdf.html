@@ -59,7 +59,8 @@
       .row-3,
       .row-5,
       .row-6,
-      .row-7 {
+      .row-7,
+      .row-8 {
         display: grid;
         grid-template-columns: auto 1fr;
         margin-top: 20px;
@@ -112,6 +113,21 @@
         /* height: max-content; */
         text-align: center;
       }
+      .main-graphs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .main-graphs div img {
+        width: 100%;
+        height: auto;
+      }
+      .row-8 {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        padding: 10px;
+        font-weight: bold;
+        text-align: center;
+      }
     </style>
   </head>
   <body>
@@ -147,9 +163,12 @@
         <div class="graph">
           <div class="title">Pure Tone Audiometry</div>
           <div class="main-graphs">
-            <div class="right-ear"></div>
-            <div class="x-title"></div>
-            <div class="left-ear"></div>
+            <div class="right-ear">
+              <img src="right_ear.png" alt="" />
+            </div>
+            <div class="left-ear">
+              <img src="left_ear.png" alt="" />
+            </div>
           </div>
         </div>
         <div class="row-3">
@@ -228,6 +247,13 @@
         <div class="row-7">
           <div>Recommendations:</div>
           <div class="values">^reccomendations^</div>
+        </div>
+        <div class="row-8">
+          <div class="row-8-blank"></div>
+          <div class="signature">
+            <div>Ramanjeet Kaur</div>
+            <div>Clinical Audiologist</div>
+          </div>
         </div>
       </div>
     </div>
