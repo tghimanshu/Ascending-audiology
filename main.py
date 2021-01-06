@@ -9,6 +9,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import mysql.connector
 import json
+import time
 
 conn = mysql.connector.connect(host='localhost', user='root', password='', database='ascending_audiology')
 cursor = conn.cursor()
@@ -194,18 +195,28 @@ def MainWindow(opened=False, openedData={}):
     ov_size = (6, 6)
 
 
-    for i in range(0, Y, GRID):
+    for i in range(0, Y+GRID, GRID):
         c.create_line(0, i, X, i, fill='#999')
-    for i in range(0, X, GRID):
-        if (i%2==0 and i != 0):
+    for i in range(0, X+GRID, GRID):
+        if (i % 2 == 0 and i != 0):
+            if i < 150:
+                continue
+            if i > 350:
+                c.create_line(i, 0, i, Y, fill="#999")
+                continue
             c.create_line(i, 0, i, Y, dash=(1,1), fill='#999')
         else:
             c.create_line(i, 0, i, Y, fill='#999')
 
-    for i in range(0, Y+GRID, GRID):
+    for i in range(0, Y + GRID, GRID):
         c2.create_line(0, i, X, i, fill='#999')
     for i in range(0, X+GRID, GRID):
         if (i%2==0 and i != 0):
+            if i < 150:
+                continue
+            if i > 350:
+                c2.create_line(i, 0, i, Y, fill="#999")
+                continue
             c2.create_line(i, 0, i, Y, dash=(1,1), fill='#999')
         else:
             c2.create_line(i, 0, i, Y, fill='#999')
@@ -574,6 +585,8 @@ def MainWindow(opened=False, openedData={}):
 
 
     def take_ss():
+        my_canvas.yview_moveto(float(0))
+        time.sleep(2)
         box = (le_graph_frame.winfo_rootx(),le_graph_frame.winfo_rooty(),le_graph_frame.winfo_rootx()+le_graph_frame.winfo_width(),le_graph_frame.winfo_rooty() + le_graph_frame.winfo_height())
         box2 = (re_graph_frame.winfo_rootx(), re_graph_frame.winfo_rooty(), re_graph_frame.winfo_rootx() + re_graph_frame.winfo_width(), re_graph_frame.winfo_rooty() + re_graph_frame.winfo_height())
         c.itemconfigure('le_point', state='hidden')
@@ -748,7 +761,7 @@ def MainWindow(opened=False, openedData={}):
     curr_date = datetime.today().strftime('%Y-%m-%d')
 
     def submit_form():
-        take_ss()
+        take_ss()   
         with open('template/pdf.html', 'r') as f:
             html_file = f.read()
         html_file = html_file.replace('^name^', name.get())
@@ -787,14 +800,63 @@ def MainWindow(opened=False, openedData={}):
         driver.get('E:\\projects\\ascending_audiology\\template\\export.html')
         driver.maximize_window()
         driver.execute_script('window.print()')
+        # img = Image.open(BytesIO(driver.find_element_by_tag_name('body').screenshot_as_png))
+        # img.save('filename.pdf', "PDF", quality=100)
+    
+    def update_form():
+        take_ss()   
+        with open('template/pdf.html', 'r') as f:
+            html_file = f.read()
+        html_file = html_file.replace('^name^', name.get())
+        html_file = html_file.replace('^age^', age.get())
+        html_file = html_file.replace('^gender^', gender.get())
+        html_file = html_file.replace('^date^', str(curr_date))
+        try:
+            html_file = html_file.replace('^case^', str(cursor.lastrowid + 1))
+        except:
+            html_file = html_file.replace('^case^', str(1))
+        html_file = html_file.replace('^complaints^', complaints.get())
+        html_file = html_file.replace('^comments^', comments.get())
+        html_file = html_file.replace('^r-oto^', oto_right.get())
+        html_file = html_file.replace('^l-oto^', oto_left.get())
+        html_file = html_file.replace('^r-rennie^', tfr_right.get())
+        html_file = html_file.replace('^l-rennie^', tfr_left.get())
+        html_file = html_file.replace('^r-weber^', tfw_right.get())
+        html_file = html_file.replace('^l-weber^', tfw_left.get())
+        html_file = html_file.replace('^r-sat^', sa_right_sat.get())
+        html_file = html_file.replace('^l-sat^', sa_left_sat.get())
+        html_file = html_file.replace('^r-srt^', sa_right_srt.get())
+        html_file = html_file.replace('^l-srt^', sa_left_srt.get())
+        html_file = html_file.replace('^r-wrs^', sa_right_wrs.get())
+        html_file = html_file.replace('^l-wrs^', sa_left_wrs.get())
+        html_file = html_file.replace('^r-ulc^', sa_right_wrs.get())
+        html_file = html_file.replace('^l-ulc^', sa_left_wrs.get())
+        html_file = html_file.replace('^right-ear^', right_ear.get())
+        html_file = html_file.replace('^left-ear^', left_ear.get())
+        html_file = html_file.replace('^reccomendations^', rec.get())
+        with open('template/export.html', 'w') as f:
+            f.write(html_file)
+        insert_data_list = [name.get(), age.get(), gender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), tfw_right.get(), tfw_left.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get(), int(the_case[0])]
+        cursor.execute("UPDATE `cases` SET `name` = %s, `age` = %s, `gender` = %s, `date` = %s, `complaints` = %s, `graphs` = %s, `comments` = %s, `r-oto` = %s, `l-oto` = %s, `r-rennie` = %s, `l-rennie` = %s, `r-weber` = %s, `l-weber` = %s, `r-sat` = %s, `l-sat` = %s, `r-srt` = %s, `l-srt` = %s, `r-wrs` = %s, `l-wrs` = %s, `r-ulc` = %s, `l-ulc` = %s, `right-ear` = %s, `left-ear` = %s, `recommendation` = %s WHERE `case_no` = %s", insert_data_list)
+        conn.commit()
+        driver = webdriver.Chrome('chromewebdriver.exe')
+        driver.get('E:\\projects\\ascending_audiology\\template\\export.html')
+        driver.maximize_window()
+        driver.execute_script('window.print()')
         img = Image.open(BytesIO(driver.find_element_by_tag_name('body').screenshot_as_png))
         img.save('filename.pdf', "PDF", quality=100)
+        pass
 
     submit = ttk.Frame(window)
     submit.pack(padx=20)
 
-    submit_btn = Button(submit, text="Submit", command=submit_form)
-    submit_btn.grid(row=0, column=0, padx=10, pady=10)
+    if opened:
+        update_btn = Button(submit, text="Update", command=update_form)
+        update_btn.grid(row=0, column=0, padx=10, pady=10)
+    else:
+        submit_btn = Button(submit, text="Submit", command=submit_form)
+        submit_btn.grid(row=0, column=0, padx=10, pady=10)
+
 
 
     # For Opened Cases
