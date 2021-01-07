@@ -13,7 +13,7 @@ import time
 
 conn = mysql.connector.connect(host='localhost', user='root', password='', database='ascending_audiology')
 cursor = conn.cursor()
-
+cursor = conn.cursor(buffered=True)
 
 def MainWindow(opened=False, openedData={}):
     # global Y
@@ -139,7 +139,9 @@ def MainWindow(opened=False, openedData={}):
             'red_open_bracket_nr':[],
             'blue_close_bracket_nr':[],
             'red_sq_bkt_nr':[],
-            'blue_sq_bkt_nr':[]
+            'blue_sq_bkt_nr': [],
+            'unmasked_sf': [],
+            'aided_sf':[]
         }
 
     points_count = {
@@ -158,7 +160,9 @@ def MainWindow(opened=False, openedData={}):
         'red_open_bracket_nr': 0,
         'blue_close_bracket_nr': 0,
         'red_sq_bkt_nr': 0,
-        'blue_sq_bkt_nr': 0 
+        'blue_sq_bkt_nr': 0,
+        'unmasked_sf': 0,
+        'aided_sf': 0
     }
 
 
@@ -360,6 +364,16 @@ def MainWindow(opened=False, openedData={}):
         yy = c.canvasy(e.y)
         t = c.find_withtag('le_point')
         oc = le_get_oval_centre(c.bbox(t))
+        if (arg == 'unmasked_sf'):
+            le_check_y_for_same(arg, oc[0], oc[1])
+            c.create_text(oc[0], oc[1], text='S',font='calibri 20', tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+        if (arg == 'aided_sf'):
+            le_check_y_for_same(arg, oc[0], oc[1])
+            c.create_text(oc[0], oc[1], text='A',font='calibri 20', tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
         if (arg == 'red_circle'):   
             le_check_y_for_same(arg, oc[0], oc[1])
             c.create_image(oc[0], oc[1], image=red_circle, tags=arg+str(points_count[arg]))
@@ -416,6 +430,16 @@ def MainWindow(opened=False, openedData={}):
         yy = c2.canvasy(e.y)
         t = c2.find_withtag('re_point')
         oc = re_get_oval_centre(c2.bbox(t))
+        if (arg == 'unmasked_sf'):
+            re_check_y_for_same(arg, oc[0], oc[1])
+            c2.create_text(oc[0], oc[1], text='S',font='calibri 20', tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+        if (arg == 'aided_sf'):
+            re_check_y_for_same(arg, oc[0], oc[1])
+            c2.create_text(oc[0], oc[1], text='A',font='calibri 20', tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
         if(arg == 'blue_X'):
             re_check_y_for_same(arg, oc[0], oc[1])
             c2.create_image(oc[0], oc[1], image=blue_X, tags=arg+str(points_count[arg]))
@@ -609,6 +633,8 @@ def MainWindow(opened=False, openedData={}):
     m_ac = Button(graph_button_frame, text="Masked AC NR", command=lambda x='red_triangle_nr', y='blue_square_nr': insert_image(x, y)).pack(fill="x", pady=2)
     um_bc = Button(graph_button_frame, text="Unmasked BC NR", command=lambda x='red_open_bracket_nr', y='blue_close_bracket_nr': insert_image(x, y)).pack(fill="x", pady=2)
     m_bc = Button(graph_button_frame, text="Masked BC NR", command=lambda x='red_sq_bkt_nr', y='blue_sq_bkt_nr': insert_image(x, y)).pack(fill="x", pady=2)
+    u_sf = Button(graph_button_frame, text="Unmasked SF", command=lambda x='unmasked_sf', y='unmasked_sf': insert_image(x, y)).pack(fill="x", pady=2)
+    a_sf = Button(graph_button_frame, text="Aided SF", command=lambda x='aided_sf', y='aided_sf': insert_image(x, y)).pack(fill="x", pady=2)
 
     rem_points = Button(graph_button_frame, text='Remove Points', command=bind_remove_points).pack(fill="x", pady=2)
 
@@ -761,7 +787,7 @@ def MainWindow(opened=False, openedData={}):
     curr_date = datetime.today().strftime('%Y-%m-%d')
 
     def submit_form():
-        take_ss()   
+        # take_ss()   
         with open('template/pdf.html', 'r') as f:
             html_file = f.read()
         html_file = html_file.replace('^name^', name.get())
@@ -769,6 +795,7 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^gender^', gender.get())
         html_file = html_file.replace('^date^', str(curr_date))
         try:
+            cursor.execute('SELECT * FROM cases')
             html_file = html_file.replace('^case^', str(cursor.lastrowid + 1))
         except:
             html_file = html_file.replace('^case^', str(1))
@@ -804,7 +831,7 @@ def MainWindow(opened=False, openedData={}):
         # img.save('filename.pdf', "PDF", quality=100)
     
     def update_form():
-        take_ss()   
+        # take_ss()   
         with open('template/pdf.html', 'r') as f:
             html_file = f.read()
         html_file = html_file.replace('^name^', name.get())
@@ -812,6 +839,7 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^gender^', gender.get())
         html_file = html_file.replace('^date^', str(curr_date))
         try:
+            cursor.execute('SELECT * FROM cases')
             html_file = html_file.replace('^case^', str(cursor.lastrowid + 1))
         except:
             html_file = html_file.replace('^case^', str(1))
@@ -887,6 +915,16 @@ def MainWindow(opened=False, openedData={}):
         
         def le_evn_opened(arg, p):
             oc = (p[0], p[1])
+            if (arg == 'unmasked_sf'):
+                le_check_y_for_same(arg, oc[0], oc[1])
+                c.create_text(oc[0], oc[1], text='S',font='calibri 20', tags=arg+str(points_count[arg]))
+                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+                points_count[arg]+=1
+            if (arg == 'aided_sf'):
+                le_check_y_for_same(arg, oc[0], oc[1])
+                c.create_text(oc[0], oc[1], text='A',font='calibri 20', tags=arg+str(points_count[arg]))
+                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+                points_count[arg]+=1
             if (arg == 'red_circle'):   
                 le_check_y_for_same(arg, oc[0], oc[1])
                 c.create_image(oc[0], oc[1], image=red_circle, tags=arg+str(points_count[arg]))
@@ -940,6 +978,16 @@ def MainWindow(opened=False, openedData={}):
 
         def re_evn_opened(arg, p):
             oc = (p[0], p[1])
+            if (arg == 'unmasked_sf'):
+                le_check_y_for_same(arg, oc[0], oc[1])
+                c2.create_text(oc[0], oc[1], text='S',font='calibri 20', tags=arg+str(points_count[arg]))
+                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+                points_count[arg]+=1
+            if (arg == 'aided_sf'):
+                le_check_y_for_same(arg, oc[0], oc[1])
+                c2.create_text(oc[0], oc[1], text='A',font='calibri 20', tags=arg+str(points_count[arg]))
+                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+                points_count[arg]+=1
             if(arg == 'blue_X'):
                 re_check_y_for_same(arg, oc[0], oc[1])
                 c2.create_image(oc[0], oc[1], image=blue_X, tags=arg+str(points_count[arg]))
