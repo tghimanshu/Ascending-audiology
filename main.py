@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from tkinter import *
 from tkcalendar import Calendar, DateEntry
 from PIL import Image, ImageTk
@@ -7,18 +7,54 @@ import pyscreenshot as ImageGrab
 import tkinter.tix as tix
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import mysql.connector
+import sqlite3
 import json
 import time
 
-conn = mysql.connector.connect(host='localhost', user='root', password='', database='ascending_audiology')
+# conn = sqlite3.connect(host='localhost', user='root', password='', database='ascending_audiology')
+conn = sqlite3.connect('ascending_audiology.db')
 cursor = conn.cursor()
-cursor = conn.cursor(buffered=True)
+# cursor = conn.cursor(buffered=True)
+cursor.execute('''CREATE TABLE IF NOT EXISTS cases (
+    case_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    age TEXT,
+    gender TEXT,
+    date TEXT,
+    complaints TEXT,
+    graphs TEXT,
+    comments TEXT,
+    'r-oto' TEXT,
+    'l-oto' TEXT,
+    'r-rennie' TEXT,
+    'l-rennie' TEXT,
+    'r-weber' TEXT,
+    'l-weber' TEXT,
+    'r-sat' TEXT,
+    'l-sat' TEXT,
+    'r-srt' TEXT,
+    'l-srt' TEXT,
+    'r-wrs' TEXT,
+    'l-wrs' TEXT,
+    'r-ulc' TEXT,
+    'l-ulc' TEXT,
+    'right-ear' TEXT,
+    'left-ear' TEXT,
+    'recommendation' TEXT
+
+	table_constraints
+);''')
+
+
 
 def MainWindow(opened=False, openedData={}):
     # global Y
     
     # Function for Open Dialog
+    def newCase():
+        root.destroy()
+        MainWindow()
+
     def openACase():
         new_win = Toplevel()
         cursor.execute('SELECT * FROM cases')
@@ -37,6 +73,10 @@ def MainWindow(opened=False, openedData={}):
 
         def open_the_data():
             itemIndex = tv.focus()
+            if itemIndex == '':
+                messagebox.showerror(title="Open Error", message="No Case Seelected!")
+                new_win.focus()
+                return
             openedData = tv.item(itemIndex)
             opened = True
             new_win.destroy()
@@ -46,17 +86,19 @@ def MainWindow(opened=False, openedData={}):
         Button(new_win, text="Open", command=open_the_data).pack()
         new_win.mainloop()
     if opened:
-        cursor.execute("SELECT * FROM cases WHERE case_no = " + str(openedData['values'][0]))
+        cursor.execute("SELECT * FROM cases WHERE case_id = " + str(openedData['values'][0]))
         the_case = cursor.fetchone()
         # print(the_case)
     # Main Window Start
     root = tk.Tk()
+    # root.set_theme("radiance")
+
     root.state('zoomed')
     root.title("Ascending Audiology")
 
-
     menubar = Menu(root)
     filemenu = Menu(menubar, tearoff=0)
+    filemenu.add_command(label="New", command=newCase)
     filemenu.add_command(label="Open", command=openACase)
 
 
@@ -77,6 +119,10 @@ def MainWindow(opened=False, openedData={}):
 
     my_canvas.configure(yscrollcommand=my_scrollbar)
     my_canvas.bind('<Configure>', lambda e: my_canvas.configure(scrollregion=my_canvas.bbox('all')))
+    def on_mousewheel(event):
+        my_canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+    my_canvas.bind_all("<MouseWheel>", on_mousewheel)
+
 
     window = Frame(my_canvas)
 
@@ -88,6 +134,9 @@ def MainWindow(opened=False, openedData={}):
     personal_details = ttk.Frame(window)
     personal_details.pack(padx=20)
 
+    # style = ttk.Style() 
+    # style.configure('Pd.Entry', foreground ='green')
+
     # Entry
     name = ttk.Entry(personal_details, width=25)
     name.grid(row=0, column=1)
@@ -97,8 +146,8 @@ def MainWindow(opened=False, openedData={}):
     gender.grid(row=0, column=5)
     # date = Calendar(personal_details, selectmode='day')
     # date.grid(row=3, column=1)
-    case_no = ttk.Entry(personal_details, width=25)
-    case_no.grid(row=0, column=7)
+    # case_no = ttk.Entry(personal_details, width=25)
+    # case_no.grid(row=0, column=7)
     complaints = ttk.Entry(personal_details, width=100)
     complaints.grid(row=1, column=1, columnspan=7, sticky="we")
 
@@ -111,8 +160,8 @@ def MainWindow(opened=False, openedData={}):
     gender_label.grid(row=0, column=4, padx=10, pady=10)
     # date_label = ttk.Label(personal_details, text="Date: ")
     # date_label.grid(row=3, column=0, padx=10, pady=10)
-    case_no_label = ttk.Label(personal_details, text="Case No: ")
-    case_no_label.grid(row=0, column=6, padx=10, pady=10)
+    # case_no_label = ttk.Label(personal_details, text="Case No: ")
+    # case_no_label.grid(row=0, column=6, padx=10, pady=10)
     complaints_label = ttk.Label(personal_details, text="Cheif Complaints: ")
     complaints_label.grid(row=1, column=0, padx=10, pady=10)
 
@@ -327,8 +376,17 @@ def MainWindow(opened=False, openedData={}):
             lines = sorted(temp_points[arg], key=lambda item: item[0])
             for i, p in enumerate(lines):
                 try:
-                    if ('_nr' not in lines[i][2] and '_nr' not in lines[i+1][2] and 'blue' not in lines[i][2] and 'blue' not in lines[i+1][2]):
-                        c.create_line(p[0], p[1], lines[i + 1][0], lines[i + 1][1], width=1.4, fill='red', tags='lines')
+                    if ('_nr' not in lines[i][2] and '_nr' not in lines[i + 1][2] and 'blue' not in lines[i][2] and 'blue' not in lines[i + 1][2]):
+                        if 'circle' in lines[i][2] or 'triangle' in lines[i][2]:
+                            c.create_line(p[0], p[1], lines[i + 1][0], lines[i + 1][1], width=2, fill='red', tags='lines')
+                            c.tag_lower('lines', lines[i][2])
+                        elif 'open' in lines[i][2] or 'sq' in lines[i][2]:
+                            c.create_line(p[0], p[1], lines[i + 1][0], lines[i + 1][1], width=2, dash=(4, 1), fill='red', tags='lines')
+                            c.tag_lower('lines', lines[i][2])
+                        else:
+                            c.create_line(p[0], p[1], lines[i + 1][0], lines[i + 1][1], width=2, fill='red', tags='lines')
+                            c.tag_lower('lines', lines[i][2])
+                        # c.find_withtag('lines')
                 except IndexError:
                     pass
 
@@ -349,11 +407,14 @@ def MainWindow(opened=False, openedData={}):
                 try:
                     if ('_nr' not in lines[i][2] and '_nr' not in lines[i + 1][2] and 'red' not in lines[i][2] and 'red' not in lines[i + 1][2]):
                         if 'X' in lines[i][2] or 'square' in lines[i][2]:
-                            c2.create_line(p[0], p[1], lines[i + 1][0], lines[i + 1][1], width=1.4, fill='blue', tags='lines')
+                            c2.create_line(p[0], p[1], lines[i + 1][0], lines[i + 1][1], width=2, fill='blue', tags='lines')
+                            c2.tag_lower('lines', lines[i][2])
                         elif 'close' in lines[i][2] or 'sq' in lines[i][2]:
-                            c2.create_line(p[0], p[1], lines[i + 1][0], lines[i + 1][1], dash=(4, 1), width=1.4, fill='blue', tags='lines')
+                            c2.create_line(p[0], p[1], lines[i + 1][0], lines[i + 1][1], width=2, dash=(4, 1), fill='blue', tags='lines')
+                            c2.tag_lower('lines', lines[i][2])
                         else:
-                            c2.create_line(p[0], p[1], lines[i + 1][0], lines[i + 1][1], width=1.4, fill='blue', tags='lines')
+                            c2.create_line(p[0], p[1], lines[i + 1][0], lines[i + 1][1], width=2, fill='blue', tags='lines')
+                            c2.tag_lower('lines', lines[i][2])
 
                 except IndexError:
                     pass
@@ -559,12 +620,18 @@ def MainWindow(opened=False, openedData={}):
     blue_sq_bkt_nr = ImageTk.PhotoImage(blue_sq_bkt_nr)
 
 
-    def insert_image(arg1, arg2):
+    def insert_image(arg1, arg2, text):
         c.bind('<Button-1>', lambda event, arg=arg1: le_evn(event, arg))
         c2.bind('<Button-1>', lambda event, arg=arg2: re_evn(event, arg2))
         for w in graph_button_frame.winfo_children():
-            if not 'Cancel' in w.cget('text'):
+            # print(w.cget('command'))
+            # if not 'Cancel' in w.cget('text'):
+            #     w.config(state="disable")
+            if text == w.cget('text'):
                 w.config(state="disable")
+            else:
+                w.config(state="normal")
+        # graph_button_frame.find
             
         
     def cancel_all():
@@ -604,17 +671,21 @@ def MainWindow(opened=False, openedData={}):
         c2.unbind('<Button-1>')
         c2.bind('<Button-1>', re_remove_points)
         for w in graph_button_frame.winfo_children():
-            if not 'Cancel' in w.cget('text'):
+            if 'Remove' in w.cget('text'):
                 w.config(state="disable")
+            else:
+                w.config(state="normal")
 
 
     def take_ss():
-        my_canvas.yview_moveto(float(0))
-        time.sleep(2)
-        box = (le_graph_frame.winfo_rootx(),le_graph_frame.winfo_rooty(),le_graph_frame.winfo_rootx()+le_graph_frame.winfo_width(),le_graph_frame.winfo_rooty() + le_graph_frame.winfo_height())
-        box2 = (re_graph_frame.winfo_rootx(), re_graph_frame.winfo_rooty(), re_graph_frame.winfo_rootx() + re_graph_frame.winfo_width(), re_graph_frame.winfo_rooty() + re_graph_frame.winfo_height())
         c.itemconfigure('le_point', state='hidden')
         c2.itemconfigure('re_point', state='hidden')
+        
+        my_canvas.yview_moveto(float(0))
+        box = (le_graph_frame.winfo_rootx(),le_graph_frame.winfo_rooty(),le_graph_frame.winfo_rootx()+le_graph_frame.winfo_width(),le_graph_frame.winfo_rooty() + le_graph_frame.winfo_height())
+        box2 = (re_graph_frame.winfo_rootx(), re_graph_frame.winfo_rooty(), re_graph_frame.winfo_rootx() + re_graph_frame.winfo_width(), re_graph_frame.winfo_rooty() + re_graph_frame.winfo_height())
+        
+        time.sleep(2)
         grab = ImageGrab.grab(bbox=box)
         grab2 = ImageGrab.grab(bbox=box2)
         grab.save('template/right_ear.png')
@@ -624,23 +695,23 @@ def MainWindow(opened=False, openedData={}):
     graph_button_frame = Frame(my_graph)
     graph_button_frame.grid(row=0, column=1, padx=10)
 
-    um_ac = Button(graph_button_frame, text="Unmasked AC", command=lambda x='red_circle', y='blue_X': insert_image(x, y)).pack(fill="x", pady=2)
-    m_ac = Button(graph_button_frame, text="Masked AC", command=lambda x='red_triangle', y='blue_square': insert_image(x, y)).pack(fill="x", pady=2)
-    um_bc = Button(graph_button_frame, text="Unmasked BC", command=lambda x='red_open_bracket', y='blue_close_bracket': insert_image(x, y)).pack(fill="x", pady=2)
-    m_bc = Button(graph_button_frame, text="Masked BC", command=lambda x='red_sq_bkt', y='blue_sq_bkt': insert_image(x, y)).pack(fill="x", pady=2)
+    um_ac = Button(graph_button_frame, text="Unmasked AC", command=lambda x='red_circle', y='blue_X', text="Unmasked AC": insert_image(x, y, text)).pack(fill="x", pady=2)
+    m_ac = Button(graph_button_frame, text="Masked AC", command=lambda x='red_triangle', y='blue_square', text="Masked AC": insert_image(x, y, text)).pack(fill="x", pady=2)
+    um_bc = Button(graph_button_frame, text="Unmasked BC", command=lambda x='red_open_bracket', y='blue_close_bracket', text="Unmasked BC": insert_image(x, y, text)).pack(fill="x", pady=2)
+    m_bc = Button(graph_button_frame, text="Masked BC", command=lambda x='red_sq_bkt', y='blue_sq_bkt', text="Masked BC": insert_image(x, y, text)).pack(fill="x", pady=2)
 
-    um_ac = Button(graph_button_frame, text="Unmasked AC NR", command=lambda x='red_circle_nr', y='blue_X_nr': insert_image(x, y)).pack(fill="x", pady=2)
-    m_ac = Button(graph_button_frame, text="Masked AC NR", command=lambda x='red_triangle_nr', y='blue_square_nr': insert_image(x, y)).pack(fill="x", pady=2)
-    um_bc = Button(graph_button_frame, text="Unmasked BC NR", command=lambda x='red_open_bracket_nr', y='blue_close_bracket_nr': insert_image(x, y)).pack(fill="x", pady=2)
-    m_bc = Button(graph_button_frame, text="Masked BC NR", command=lambda x='red_sq_bkt_nr', y='blue_sq_bkt_nr': insert_image(x, y)).pack(fill="x", pady=2)
-    u_sf = Button(graph_button_frame, text="Unmasked SF", command=lambda x='unmasked_sf', y='unmasked_sf': insert_image(x, y)).pack(fill="x", pady=2)
-    a_sf = Button(graph_button_frame, text="Aided SF", command=lambda x='aided_sf', y='aided_sf': insert_image(x, y)).pack(fill="x", pady=2)
+    um_ac = Button(graph_button_frame, text="Unmasked AC NR", command=lambda x='red_circle_nr', y='blue_X_nr', text="Unmasked AC NR": insert_image(x, y, text)).pack(fill="x", pady=2)
+    m_ac = Button(graph_button_frame, text="Masked AC NR", command=lambda x='red_triangle_nr', y='blue_square_nr', text="Masked AC NR": insert_image(x, y, text)).pack(fill="x", pady=2)
+    um_bc = Button(graph_button_frame, text="Unmasked BC NR", command=lambda x='red_open_bracket_nr', y='blue_close_bracket_nr', text="Unmasked BC NR": insert_image(x, y, text)).pack(fill="x", pady=2)
+    m_bc = Button(graph_button_frame, text="Masked BC NR", command=lambda x='red_sq_bkt_nr', y='blue_sq_bkt_nr', text="Masked BC NR": insert_image(x, y, text)).pack(fill="x", pady=2)
+    u_sf = Button(graph_button_frame, text="Unmasked SF", command=lambda x='unmasked_sf', y='unmasked_sf', text="Unmasked SF": insert_image(x, y, text)).pack(fill="x", pady=2)
+    a_sf = Button(graph_button_frame, text="Aided SF", command=lambda x='aided_sf', y='aided_sf', text="Aided SF": insert_image(x, y, text)).pack(fill="x", pady=2)
 
-    rem_points = Button(graph_button_frame, text='Remove Points', command=bind_remove_points).pack(fill="x", pady=2)
+    rem_points = Button(graph_button_frame, bg='lightblue', text='Remove Points', command=bind_remove_points).pack(fill="x", pady=2)
 
-    span_ss = Button(graph_button_frame, text='Get SS', command=take_ss).pack(fill="x", pady=2)
+    span_ss = Button(graph_button_frame, text='Get SS', bg='lightgreen', command=take_ss).pack(fill="x", pady=2)
 
-    span_ss = Button(graph_button_frame, text='Cancel', command=cancel_all).pack(fill="x", pady=10)
+    # span_ss = Button(graph_button_frame, text='Cancel', command=cancel_all).pack(fill="x", pady=10)
 
     '''
     COMMENTS
@@ -821,7 +892,8 @@ def MainWindow(opened=False, openedData={}):
         with open('template/export.html', 'w') as f:
             f.write(html_file)
         insert_data_list = [name.get(), age.get(), gender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), tfw_right.get(), tfw_left.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]
-        cursor.execute("INSERT INTO `cases`(`name`, `age`, `gender`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `r-weber`, `l-weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", insert_data_list)
+        cursor.execute("INSERT INTO `cases`(`name`, `age`, `gender`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `r-weber`, `l-weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", insert_data_list)
+        # cursor.execute("INSERT INTO `cases`(`name`, `age`, `gender`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `r-weber`, `l-weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)", insert_data_list)
         conn.commit()
         driver = webdriver.Chrome('chromewebdriver.exe')
         driver.get('E:\\projects\\ascending_audiology\\template\\export.html')
@@ -865,7 +937,7 @@ def MainWindow(opened=False, openedData={}):
         with open('template/export.html', 'w') as f:
             f.write(html_file)
         insert_data_list = [name.get(), age.get(), gender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), tfw_right.get(), tfw_left.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get(), int(the_case[0])]
-        cursor.execute("UPDATE `cases` SET `name` = %s, `age` = %s, `gender` = %s, `date` = %s, `complaints` = %s, `graphs` = %s, `comments` = %s, `r-oto` = %s, `l-oto` = %s, `r-rennie` = %s, `l-rennie` = %s, `r-weber` = %s, `l-weber` = %s, `r-sat` = %s, `l-sat` = %s, `r-srt` = %s, `l-srt` = %s, `r-wrs` = %s, `l-wrs` = %s, `r-ulc` = %s, `l-ulc` = %s, `right-ear` = %s, `left-ear` = %s, `recommendation` = %s WHERE `case_no` = %s", insert_data_list)
+        cursor.execute("UPDATE `cases` SET `name` = %s, `age` = %s, `gender` = %s, `date` = %s, `complaints` = %s, `graphs` = %s, `comments` = %s, `r-oto` = %s, `l-oto` = %s, `r-rennie` = %s, `l-rennie` = %s, `r-weber` = %s, `l-weber` = %s, `r-sat` = %s, `l-sat` = %s, `r-srt` = %s, `l-srt` = %s, `r-wrs` = %s, `l-wrs` = %s, `r-ulc` = %s, `l-ulc` = %s, `right-ear` = %s, `left-ear` = %s, `recommendation` = %s WHERE `case_id` = %s", insert_data_list)
         conn.commit()
         driver = webdriver.Chrome('chromewebdriver.exe')
         driver.get('E:\\projects\\ascending_audiology\\template\\export.html')
@@ -889,7 +961,7 @@ def MainWindow(opened=False, openedData={}):
 
     # For Opened Cases
     if opened:
-        case_no.insert(0, the_case[0])
+        # case_no.insert(0, the_case[0])
         name.insert(0, the_case[1])
         age.insert(0, the_case[2])
         gender.insert(0, the_case[3])
