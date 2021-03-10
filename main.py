@@ -166,12 +166,13 @@ def MainWindow(opened=False, openedData={}):
     name.grid(row=0, column=1)
     age = ttk.Entry(personal_details, width=25)
     age.grid(row=0, column=3)
-    gender = ttk.Entry(personal_details, width=25)
+    gender = ttk.Frame(personal_details)
     gender.grid(row=0, column=5)
-    # date = Calendar(personal_details, selectmode='day')
-    # date.grid(row=3, column=1)
-    # case_no = ttk.Entry(personal_details, width=25)
-    # case_no.grid(row=0, column=7)
+    myGender = StringVar()
+    g_male = ttk.Radiobutton(gender, variable=myGender, text="Male", value="M")
+    g_male.grid(row=0, column=0)
+    g_female = ttk.Radiobutton(gender, variable=myGender, text="Female", value="F")
+    g_female.grid(row=0, column=1)
     complaints = ttk.Entry(personal_details, width=100)
     complaints.grid(row=1, column=1, columnspan=7, sticky="we")
 
@@ -182,10 +183,6 @@ def MainWindow(opened=False, openedData={}):
     age_label.grid(row=0, column=2, padx=10, pady=10)
     gender_label = ttk.Label(personal_details, text="Gender: ")
     gender_label.grid(row=0, column=4, padx=10, pady=10)
-    # date_label = ttk.Label(personal_details, text="Date: ")
-    # date_label.grid(row=3, column=0, padx=10, pady=10)
-    # case_no_label = ttk.Label(personal_details, text="Case No: ")
-    # case_no_label.grid(row=0, column=6, padx=10, pady=10)
     complaints_label = ttk.Label(personal_details, text="Cheif Complaints: ")
     complaints_label.grid(row=1, column=0, padx=10, pady=10)
 
@@ -194,26 +191,7 @@ def MainWindow(opened=False, openedData={}):
     '''
     if opened:
         points = json.loads(the_case[6])
-        # points_count = {
-        #     'red_circle': len(points['red_circle']),
-        #     'blue_X': len(points['blue_X']),
-        #     'red_triangle': len(points['red_triangle']),
-        #     'blue_square': len(points['blue_square']),
-        #     'red_open_bracket': len(points['red_open_bracket']),
-        #     'blue_close_bracket': len(points['blue_close_bracket']),
-        #     'red_sq_bkt': len(points['red_sq_bkt']),
-        #     'blue_sq_bkt': len(points['blue_sq_bkt']),
-        #     'red_circle_nr': len(points['red_circle_nr']),
-        #     'blue_X_nr': len(points['blue_X_nr']),
-        #     'red_triangle_nr': len(points['red_triangle_nr']),
-        #     'blue_square_nr': len(points['blue_square_nr']),
-        #     'red_open_bracket_nr': len(points['red_open_bracket_nr']),
-        #     'blue_close_bracket_nr': len(points['blue_close_bracket_nr']),
-        #     'red_sq_bkt_nr': len(points['red_sq_bkt_nr']),
-        #     'blue_sq_bkt_nr': len(points['blue_sq_bkt_nr']),
-        #     'unmasked_sf': len(points['unmasked_sf']),
-        #     'aided_sf': len(points['aided_sf'])
-        # }
+        
     else:
         points = {
             'red_circle':[],
@@ -232,9 +210,12 @@ def MainWindow(opened=False, openedData={}):
             'blue_close_bracket_nr':[],
             'red_sq_bkt_nr':[],
             'blue_sq_bkt_nr': [],
-            'unmasked_sf': [],
-            'aided_sf':[]
+            'red_unmasked_sf': [],
+            'red_aided_sf':[],
+            'blue_unmasked_sf': [],
+            'blue_aided_sf':[]
         }
+
     points_count = {
         'red_circle': 0,
         'blue_X': 0,
@@ -252,22 +233,22 @@ def MainWindow(opened=False, openedData={}):
         'blue_close_bracket_nr': 0,
         'red_sq_bkt_nr': 0,
         'blue_sq_bkt_nr': 0,
-        'unmasked_sf': 0,
-        'aided_sf': 0
+            'red_unmasked_sf': 0,
+            'red_aided_sf': 0,
+            'blue_unmasked_sf': 0,
+            'blue_aided_sf':0
     }
-
-
-    # print(points)
 
     X = 378
     Y = 378
     GRID = 27
+    YGRID = 13.5
 
     graph_axis = PhotoImage(file='graph_axis.png')
     my_graph = Frame(window)
     my_graph.pack()
-    le_graph_frame = Frame(my_graph, width=478, height=478, background="bisque")
-    re_graph_frame = Frame(my_graph, width=478, height=478, background="bisque")
+    le_graph_frame = Frame(my_graph, width=436, height=436, background="bisque")
+    re_graph_frame = Frame(my_graph, width=436, height=436, background="bisque")
 
     le_graph_frame.grid(row=0, column=0)
     re_graph_frame.grid(row=0, column=2)
@@ -280,11 +261,11 @@ def MainWindow(opened=False, openedData={}):
 
     c = tk.Canvas(le_graph_frame, width=X+1, height=Y+1,
                 highlightthickness=0, bg='white')
-    c.place(x=75, y=25)
+    c.place(x=51, y=10)
 
     c2 = tk.Canvas(re_graph_frame, width=X+1, height=Y+1,
                 highlightthickness=0, bg='white')
-    c2.place(x=75, y=25)
+    c2.place(x=51, y=10)
 
 
     ov_size = (6, 6)
@@ -403,6 +384,63 @@ def MainWindow(opened=False, openedData={}):
             points[arg] = temp
         re_create_graph_lines()
 
+    def le_filter_points():
+        temp_points = {
+            'red_circle': points['red_circle']+points['red_circle_nr']+points['red_triangle']+points['red_triangle_nr'],
+            'blue_X': points['blue_X']+points['blue_X_nr']+points['blue_square']+points['blue_square_nr'],
+            'red_open_bracket':points['red_open_bracket']+points['red_open_bracket_nr']+points['red_sq_bkt']+points['red_sq_bkt_nr'],
+            'blue_close_bracket': points['blue_close_bracket'] + points['blue_close_bracket_nr'] + points['blue_sq_bkt'] + points['blue_sq_bkt_nr']
+        }
+        new_temp_points = {}
+        for arg in temp_points.keys():
+            lines = sorted(temp_points[arg], key=lambda item: item[0])
+            temp_points[arg] = lines
+        for arg in temp_points.keys():
+            lines = sorted(temp_points[arg], key=lambda item: item[0])
+            new_temp_points[arg] = []
+            for i, a in enumerate(temp_points[arg]):
+                try:
+                    if a[0] == temp_points[arg][i + 1][0]:
+                        if 'unmasked' in a[2]:
+                            # new_temp_points[arg].append(a)
+                            continue
+                        if 'masked' in a[2]:
+                            new_temp_points[arg].append(a)
+                        pass
+                    else:
+                        new_temp_points[arg].append(a)
+                except IndexError:
+                    new_temp_points[arg].append(a)
+        return new_temp_points
+    def re_filter_points():
+        temp_points = {
+            'red_circle': points['red_circle']+points['red_circle_nr']+points['red_triangle']+points['red_triangle_nr'],
+            'blue_X': points['blue_X']+points['blue_X_nr']+points['blue_square']+points['blue_square_nr'],
+            'red_open_bracket':points['red_open_bracket']+points['red_open_bracket_nr']+points['red_sq_bkt']+points['red_sq_bkt_nr'],
+            'blue_close_bracket': points['blue_close_bracket'] + points['blue_close_bracket_nr'] + points['blue_sq_bkt'] + points['blue_sq_bkt_nr']
+        }
+        new_temp_points = {}
+        for arg in temp_points.keys():
+            lines = sorted(temp_points[arg], key=lambda item: item[0])
+            temp_points[arg] = lines
+        for arg in temp_points.keys():
+            lines = sorted(temp_points[arg], key=lambda item: item[0])
+            new_temp_points[arg] = []
+            for i, a in enumerate(temp_points[arg]):
+                try:
+                    if a[0] == temp_points[arg][i + 1][0]:
+                        if 'unmasked' in a[2]:
+                            # new_temp_points[arg].append(a)
+                            continue
+                        if 'masked' in a[2]:
+                            new_temp_points[arg].append(a)
+                        pass
+                    else:
+                        new_temp_points[arg].append(a)
+                except IndexError:
+                    new_temp_points[arg].append(a)
+        return new_temp_points
+
     def le_create_graph_lines():
         # t = c.find()
         c.delete('lines')
@@ -413,6 +451,8 @@ def MainWindow(opened=False, openedData={}):
             'red_open_bracket':points['red_open_bracket']+points['red_open_bracket_nr']+points['red_sq_bkt']+points['red_sq_bkt_nr'],
             'blue_close_bracket': points['blue_close_bracket']+points['blue_close_bracket_nr']+points['blue_sq_bkt']+points['blue_sq_bkt_nr']
             }
+
+        temp_points = le_filter_points()
         
         for arg in temp_points.keys():
             lines = sorted(temp_points[arg], key=lambda item: item[0])
@@ -451,7 +491,9 @@ def MainWindow(opened=False, openedData={}):
             'red_open_bracket':points['red_open_bracket']+points['red_open_bracket_nr']+points['red_sq_bkt']+points['red_sq_bkt_nr'],
             'blue_close_bracket': points['blue_close_bracket']+points['blue_close_bracket_nr']+points['blue_sq_bkt']+points['blue_sq_bkt_nr']
             }
-        
+            
+        temp_points = le_filter_points()
+
         for arg in temp_points.keys():
             lines = sorted(temp_points[arg], key=lambda item: item[0])
             for i, p in enumerate(lines):
@@ -470,18 +512,17 @@ def MainWindow(opened=False, openedData={}):
                 except IndexError:
                     pass
 
-
     def le_evn(e, arg):
         xx = c.canvasx(e.x)
         yy = c.canvasy(e.y)
         t = c.find_withtag('le_point')
         oc = le_get_oval_centre(c.bbox(t))
-        if (arg == 'unmasked_sf'):
+        if (arg == 'red_unmasked_sf'):
             le_check_y_for_same(arg, oc[0], oc[1])
             c.create_text(oc[0], oc[1], text='S',font='calibri 20', tags=arg+str(points_count[arg]))
             points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
             points_count[arg]+=1
-        if (arg == 'aided_sf'):
+        if (arg == 'red_aided_sf'):
             le_check_y_for_same(arg, oc[0], oc[1])
             c.create_text(oc[0], oc[1], text='A',font='calibri 20', tags=arg+str(points_count[arg]))
             points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
@@ -500,13 +541,13 @@ def MainWindow(opened=False, openedData={}):
             le_create_graph_lines()
         if(arg == 'red_open_bracket'):
             le_check_y_for_same(arg, oc[0], oc[1])
-            c.create_image(oc[0], oc[1], image=red_open_bracket, tags=arg+str(points_count[arg]))
+            c.create_image(oc[0]-7.5, oc[1], image=red_open_bracket, tags=arg+str(points_count[arg]))
             points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
             points_count[arg]+=1
             le_create_graph_lines()
         if(arg == 'red_sq_bkt'):    
             le_check_y_for_same(arg, oc[0], oc[1])
-            c.create_image(oc[0], oc[1], image=red_sq_bkt, tags=arg+str(points_count[arg]))
+            c.create_image(oc[0]-7.5, oc[1], image=red_sq_bkt, tags=arg+str(points_count[arg]))
             points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
             points_count[arg]+=1
             le_create_graph_lines()
@@ -525,14 +566,14 @@ def MainWindow(opened=False, openedData={}):
             le_create_graph_lines()
         if(arg == 'red_open_bracket_nr'):
             le_check_y_for_same(arg, oc[0], oc[1])
-            c.create_image(oc[0], oc[1], image=red_open_bracket_nr, tags=arg+str(points_count[arg]))
+            c.create_image(oc[0]-15, oc[1], image=red_open_bracket_nr, tags=arg+str(points_count[arg]))
             points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
             points_count[arg]+=1
             le_create_graph_lines()
         if(arg == 'red_sq_bkt_nr'):    
             le_check_y_for_same(arg, oc[0], oc[1])
-            c.create_image(oc[0], oc[1], image=red_sq_bkt_nr, tags=arg+str(points_count[arg]))
-            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            c.create_image(oc[0]-15, oc[1], image=red_sq_bkt_nr, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0]-15, oc[1], arg+str(points_count[arg])])
             points_count[arg]+=1
             le_create_graph_lines()
 
@@ -542,12 +583,12 @@ def MainWindow(opened=False, openedData={}):
         yy = c2.canvasy(e.y)
         t = c2.find_withtag('re_point')
         oc = re_get_oval_centre(c2.bbox(t))
-        if (arg == 'unmasked_sf'):
+        if (arg == 'blue_unmasked_sf'):
             re_check_y_for_same(arg, oc[0], oc[1])
             c2.create_text(oc[0], oc[1], text='S',font='calibri 20', tags=arg+str(points_count[arg]))
             points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
             points_count[arg]+=1
-        if (arg == 'aided_sf'):
+        if (arg == 'blue_aided_sf'):
             re_check_y_for_same(arg, oc[0], oc[1])
             c2.create_text(oc[0], oc[1], text='A',font='calibri 20', tags=arg+str(points_count[arg]))
             points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
@@ -566,13 +607,13 @@ def MainWindow(opened=False, openedData={}):
             re_create_graph_lines()
         if(arg == 'blue_close_bracket'):
             re_check_y_for_same(arg, oc[0], oc[1])
-            c2.create_image(oc[0], oc[1], image=blue_close_bracket, tags=arg+str(points_count[arg]))
+            c2.create_image(oc[0]+7.5, oc[1], image=blue_close_bracket, tags=arg+str(points_count[arg]))
             points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
             points_count[arg]+=1
             re_create_graph_lines()
         if(arg == 'blue_sq_bkt'):
             re_check_y_for_same(arg, oc[0], oc[1])
-            c2.create_image(oc[0], oc[1], image=blue_sq_bkt, tags=arg+str(points_count[arg]))
+            c2.create_image(oc[0]+7.5, oc[1], image=blue_sq_bkt, tags=arg+str(points_count[arg]))
             points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
             points_count[arg]+=1
             re_create_graph_lines()
@@ -591,13 +632,13 @@ def MainWindow(opened=False, openedData={}):
             re_create_graph_lines()
         if(arg == 'blue_close_bracket_nr'):
             re_check_y_for_same(arg, oc[0], oc[1])
-            c2.create_image(oc[0], oc[1], image=blue_close_bracket_nr, tags=arg+str(points_count[arg]))
+            c2.create_image(oc[0]+15, oc[1], image=blue_close_bracket_nr, tags=arg+str(points_count[arg]))
             points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
             points_count[arg]+=1
             re_create_graph_lines()
         if(arg == 'blue_sq_bkt_nr'):
             re_check_y_for_same(arg, oc[0], oc[1])
-            c2.create_image(oc[0], oc[1], image=blue_sq_bkt_nr, tags=arg+str(points_count[arg]))
+            c2.create_image(oc[0]+15, oc[1], image=blue_sq_bkt_nr, tags=arg+str(points_count[arg]))
             points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
             points_count[arg]+=1
             re_create_graph_lines()
@@ -694,26 +735,26 @@ def MainWindow(opened=False, openedData={}):
 
     def le_mot(e):
         xg = (e.x+GRID/2)//GRID
-        yg = (e.y+GRID/2)//GRID
+        yg = (e.y+YGRID/2)//YGRID
         t = c.find_withtag('le_point')
         if e.x <= 3 or e.y <= 3:
             le_set_oval_coords(t, (xg * GRID-10, yg * GRID-10))
         elif e.x >= 374 or e.y >= 365:
             le_set_oval_coords(t, (xg * GRID+10, yg * GRID+10))
         else:
-            le_set_oval_coords(t, (xg * GRID, yg * GRID))
-        print(e.x, e.y)
+            le_set_oval_coords(t, (xg * GRID, yg * YGRID))
+        
 
     def re_mot(e):
         xg = (e.x+GRID/2)//GRID
-        yg = (e.y+GRID/2)//GRID
+        yg = (e.y+YGRID/2)//YGRID
         t = c2.find_withtag('re_point')
         if e.x <= 3 or e.y <= 3:
             re_set_oval_coords(t, (xg * GRID - 10, yg * GRID - 10))
         elif e.x >= 374 or e.y >= 365:
             re_set_oval_coords(t, (xg * GRID + 10, yg * GRID + 10))
         else:
-            re_set_oval_coords(t, (xg*GRID, yg*GRID))
+            re_set_oval_coords(t, (xg*GRID, yg*YGRID))
 
         
     c.bind('<Motion>', le_mot)
@@ -747,6 +788,7 @@ def MainWindow(opened=False, openedData={}):
         grab2 = ImageGrab.grab(bbox=box2)
         grab.save('template/right_ear.png')
         grab2.save('template/left_ear.png')
+    
     def take_ss(repeat=True):
         c.itemconfigure('le_point', state='hidden')
         c2.itemconfigure('re_point', state='hidden')
@@ -769,8 +811,8 @@ def MainWindow(opened=False, openedData={}):
     m_ac = Button(graph_button_frame, text="Masked AC NR", command=lambda x='red_triangle_nr', y='blue_square_nr', text="Masked AC NR": insert_image(x, y, text)).pack(fill="x", pady=2)
     um_bc = Button(graph_button_frame, text="Unmasked BC NR", command=lambda x='red_open_bracket_nr', y='blue_close_bracket_nr', text="Unmasked BC NR": insert_image(x, y, text)).pack(fill="x", pady=2)
     m_bc = Button(graph_button_frame, text="Masked BC NR", command=lambda x='red_sq_bkt_nr', y='blue_sq_bkt_nr', text="Masked BC NR": insert_image(x, y, text)).pack(fill="x", pady=2)
-    u_sf = Button(graph_button_frame, text="Unmasked SF", command=lambda x='unmasked_sf', y='unmasked_sf', text="Unmasked SF": insert_image(x, y, text)).pack(fill="x", pady=2)
-    a_sf = Button(graph_button_frame, text="Aided SF", command=lambda x='aided_sf', y='aided_sf', text="Aided SF": insert_image(x, y, text)).pack(fill="x", pady=2)
+    u_sf = Button(graph_button_frame, text="Unmasked SF", command=lambda x='red_unmasked_sf', y='blue_unmasked_sf', text="Unmasked SF": insert_image(x, y, text)).pack(fill="x", pady=2)
+    a_sf = Button(graph_button_frame, text="Aided SF", command=lambda x='red_aided_sf', y='blue_aided_sf', text="Aided SF": insert_image(x, y, text)).pack(fill="x", pady=2)
 
     rem_points = Button(graph_button_frame, bg='lightblue', text='Remove Points', command=bind_remove_points).pack(fill="x", pady=2)
 
@@ -896,6 +938,14 @@ def MainWindow(opened=False, openedData={}):
     right_ear = ttk.Entry(ears, width=100)
     right_ear.grid(row=0, column=1, columnspan=7, sticky="we")
 
+    def re_default():
+        right_ear.insert(0, "Hearing Sensitivity with normal limits")
+        pass
+
+    def le_default():
+        left_ear.insert(0, "Hearing Sensitivity with normal limits")
+        pass
+
     left_ear = ttk.Entry(ears, width=100)
     left_ear.grid(row=1, column=1, columnspan=7, sticky="we")
 
@@ -905,6 +955,12 @@ def MainWindow(opened=False, openedData={}):
     left_ear_label = ttk.Label(ears, text="Left Ear: ")
     left_ear_label.grid(row=1, column=0, padx=10, pady=10)
 
+    right_ear_def = ttk.Button(ears, text='default', command=re_default)
+    right_ear_def.grid(row=0, column=8)
+    
+    left_ear_def = ttk.Button(ears,text="default", command=le_default)
+    left_ear_def.grid(row=1, column=8)
+    
     '''
     RECMMENDATIONS
     '''
@@ -954,6 +1010,7 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^right-ear^', right_ear.get())
         html_file = html_file.replace('^left-ear^', left_ear.get())
         html_file = html_file.replace('^reccomendations^', rec.get())
+        html_file = html_file.replace('__', "<br>")
         with open('template/export.html', 'w') as f:
             f.write(html_file)
         insert_data_list = [name.get(), age.get(), gender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), tfw_right.get(), tfw_left.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]
@@ -970,7 +1027,7 @@ def MainWindow(opened=False, openedData={}):
             html_file = f.read()
         html_file = html_file.replace('^name^', name.get())
         html_file = html_file.replace('^age^', age.get())
-        html_file = html_file.replace('^gender^', gender.get())
+        html_file = html_file.replace('^gender^', myGender)
         html_file = html_file.replace('^date^', str(curr_date))
         try:
             cursor.execute('SELECT * FROM cases')
@@ -998,7 +1055,7 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^reccomendations^', rec.get())
         with open('template/export.html', 'w') as f:
             f.write(html_file)
-        insert_data_list = [name.get(), age.get(), gender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), tfw_right.get(), tfw_left.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get(), int(the_case[0])]
+        insert_data_list = [name.get(), age.get(), myGender, str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), tfw_right.get(), tfw_left.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get(), int(the_case[0])]
         cursor.execute("UPDATE `cases` SET `name` = ?, `age` = ?, `gender` = ?, `date` = ?, `complaints` = ?, `graphs` = ?, `comments` = ?, `r-oto` = ?, `l-oto` = ?, `r-rennie` = ?, `l-rennie` = ?, `r-weber` = ?, `l-weber` = ?, `r-sat` = ?, `l-sat` = ?, `r-srt` = ?, `l-srt` = ?, `r-wrs` = ?, `l-wrs` = ?, `r-ulc` = ?, `l-ulc` = ?, `right-ear` = ?, `left-ear` = ?, `recommendation` = ? WHERE `case_id` = ?", insert_data_list)
         conn.commit()
         driver = webdriver.Chrome('chromewebdriver.exe')
@@ -1047,12 +1104,12 @@ def MainWindow(opened=False, openedData={}):
         
         def le_evn_opened(arg, p):
             oc = (p[0], p[1])
-            if (arg == 'unmasked_sf'):
+            if (arg == 'red_unmasked_sf'):
                 le_check_y_for_same(arg, oc[0], oc[1])
                 c.create_text(oc[0], oc[1], text='S',font='calibri 20', tags=arg+str(points_count[arg]))
                 points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
                 points_count[arg]+=1
-            if (arg == 'aided_sf'):
+            if (arg == 'red_aided_sf'):
                 le_check_y_for_same(arg, oc[0], oc[1])
                 c.create_text(oc[0], oc[1], text='A',font='calibri 20', tags=arg+str(points_count[arg]))
                 points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
@@ -1134,12 +1191,12 @@ def MainWindow(opened=False, openedData={}):
 
         def re_evn_opened(arg, p):
             oc = (p[0], p[1])
-            if (arg == 'unmasked_sf'):
+            if (arg == 'blue_unmasked_sf'):
                 le_check_y_for_same(arg, oc[0], oc[1])
                 c2.create_text(oc[0], oc[1], text='S',font='calibri 20', tags=arg+str(points_count[arg]))
                 points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
                 points_count[arg]+=1
-            if (arg == 'aided_sf'):
+            if (arg == 'blue_aided_sf'):
                 le_check_y_for_same(arg, oc[0], oc[1])
                 c2.create_text(oc[0], oc[1], text='A',font='calibri 20', tags=arg+str(points_count[arg]))
                 points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
@@ -1225,6 +1282,7 @@ def MainWindow(opened=False, openedData={}):
             elif 'blue' in arg:
                 re_evn_opened(arg, p)
     le_create_graph_lines()
+    re_create_graph_lines()
 
     window.mainloop()
 

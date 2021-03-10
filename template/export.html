@@ -8,33 +8,38 @@
     <style>
       @page {
         margin: 0;
+        size: A4;
       }
+
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
-      /* 
-.container {
-  width: 3508px;
-  height: 2480px;
-  background: #ccc;
-} */
+      .body {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 210mm;
+        height: 297mm;
+        padding: 25px;
+        /* background: red; */
+        size: A4;
+      }
       .container {
-        /* height: 10px; */
-        margin: 25px;
-        /* border-radius: 5px; */
+        position: relative;
+        height: 100%;
         border: 1px dashed #333;
       }
 
       .header {
         display: flex;
         justify-content: space-between;
-        padding: 10px;
+        padding: 5px;
         align-items: center;
       }
       .header > img {
-        max-width: 250px;
+        max-width: 200px;
         height: auto;
       }
       .header > div {
@@ -42,14 +47,16 @@
       }
 
       .header-hr {
-        height: 4px;
+        height: 2px;
         background: black;
+        border: none;
+        border-radius: 4px;
         width: 98%;
-        margin: 10px auto;
+        margin: 5px auto;
       }
 
       .personal-details {
-        padding: 10px;
+        padding: 10px 10px;
       }
 
       .row-1 {
@@ -65,12 +72,12 @@
       .row-8 {
         display: grid;
         grid-template-columns: auto 1fr;
-        margin-top: 20px;
-        margin-bottom: 20px;
+        margin-top: 10px;
+        margin-bottom: 10px;
       }
       .values {
         padding: 0 10px;
-        font-weight: bold;
+        /* font-weight: bold; */
         /* text-align: center; */
       }
 
@@ -79,9 +86,6 @@
         grid-template-columns: auto 1fr;
         margin-top: 2px;
         margin-bottom: 20px;
-      }
-      .graph {
-        /* padding: 20px; */
       }
       .graph .title {
         text-align: center;
@@ -92,13 +96,14 @@
       }
       .row-4 {
         display: grid;
-        grid-template-columns: auto auto auto;
+        grid-template-columns: 25% 25% 50%;
       }
       .table-1,
       .table-2,
       .table-3 {
         display: grid;
         grid-template-rows: auto 1fr;
+        padding: 0 10px;
         /* height: 100%; */
         /* background: red; */
       }
@@ -114,23 +119,41 @@
         margin: 0 auto;
         height: 100%;
         border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
       }
 
       td {
-        padding: 5px;
+        padding: 2px;
         border: 1px solid black;
         /* height: max-content; */
         text-align: center;
+        height: 33.3%;
+        font-size: 0.7em;
+      }
+      th {
+        padding: 2px;
+        border: 1px solid black;
+        text-align: center;
+        height: 33.3%;
+        font-size: 0.9em;
+      }
+      th > .table-sub {
+        font-weight: normal;
+        font-size: 0.8em;
       }
       .bold-me {
         font-weight: bold;
         font-size: 1.2rem;
         margin-bottom: 4px;
       }
+      .bold {
+        font-weight: 500;
+      }
       .main-graphs {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        margin: 0 40px;
+        /* margin: 0 40px; */
         text-align: center;
       }
       .main-graphs div img {
@@ -138,141 +161,263 @@
         height: auto;
       }
       .row-8 {
-        display: grid;
-        grid-template-columns: 1fr auto;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        /* display: grid;
+        grid-template-columns: 1fr auto; */
         padding: 10px;
         font-weight: bold;
         text-align: center;
       }
+      .headings {
+        font-weight: bold;
+      }
+      .right-ear img {
+        position: relative;
+        left: -4px;
+      }
+
+      .weber-plain-line {
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        background: black;
+      }
+
+      .weber-left-arrow {
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        background: black;
+      }
+      .weber-left-arrow::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 5px;
+        height: 5px;
+        transform: translateY(-50%) rotate(-45deg);
+        border-top: 2px solid black;
+        border-left: 2px solid black;
+        z-index: 2;
+      }
+
+      .weber-right-arrow {
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%);
+        background: black;
+      }
+      .weber-right-arrow::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: 0;
+        width: 5px;
+        height: 5px;
+        transform: translateY(-50%) rotate(-45deg);
+        border-right: 2px solid black;
+        border-bottom: 2px solid black;
+        z-index: 2;
+      }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <img src="logo.png" alt="logo" />
-        <div>
-          <div>14, ‘X’ Point, S. V. Road,</div>
-          <div>Kandivali (W), Mumbai – 400067</div>
-          <div>Ph. No.: +91 - 8928111280</div>
-          <div>Website: www.ascendingaudiology.com</div>
-          <div>Email: ascending.audiology@gmail.com</div>
-        </div>
-      </div>
-      <!-- header -->
-      <hr class="header-hr" />
-      <div class="personal-details">
-        <div class="row-1">
-          <div>Name:</div>
-          <div class="values">himanshu</div>
-          <div>Age/ Gender:</div>
-          <div class="values">19 - M</div>
-          <div>Date:</div>
-          <div class="values">2021-01-12</div>
-          <div>Case No.:</div>
-          <div class="values">1</div>
-        </div>
-        <div class="row-2">
-          <div>Chief Complaints:</div>
-          <div class="values">First Complaint</div>
-        </div>
-        <div class="graph">
-          <div class="title bold-me">Pure Tone Audiometry</div>
-          <div class="main-graphs">
-            <div class="right-ear">
-              <div class="">Right Ear</div>
-              <img src="right_ear.png" alt="" />
+    <div class="body">
+      <div class="container">
+        <div class="header">
+          <img src="logo.png" alt="logo" />
+          <div>
+            <div style="display: grid; grid-template-columns: auto 1fr">
+              <img
+                style="margin-right: 5px; margin-top: 3px"
+                src="./images/map-pin-2-fill.svg"
+                width="12px"
+              />
+              <div>
+                14, ‘X’ Point, S. V. Road, <br />Kandivali (W), Mumbai – 400067
+              </div>
             </div>
-            <div class="left-ear">
-              <div class="">Left Ear</div>
-              <img src="left_ear.png" alt="" />
+            <div>
+              <img
+                style="margin-right: 5px"
+                src="./images/phone-call.svg"
+                width="12px"
+              />
+              +91 - 8928111280
+            </div>
+            <div>
+              <img
+                style="margin-right: 5px"
+                src="./images/internet.svg"
+                width="12px"
+              />
+              www.ascendingaudiology.com
+            </div>
+            <div>
+              <img
+                style="margin-right: 5px"
+                src="./images/email.svg"
+                width="12px"
+              />
+              ascending.audiology@gmail.com
             </div>
           </div>
         </div>
-        <div class="row-3">
-          <div>Comments:</div>
-          <div class="values">comments are found here regarding the graph</div>
-        </div>
-        <div class="row-4">
-          <div class="table-1">
-            <div>Otoscopy</div>
-            <table>
-              <tr style="height: min-content">
-                <td>Right<br />&nbsp;</td>
-                <td>Left<br />&nbsp;</td>
-              </tr>
-              <tr>
-                <td rowspan="2">1</td>
-                <td rowspan="2">1</td>
-              </tr>
-            </table>
+        <!-- header -->
+        <hr class="header-hr" />
+        <div class="personal-details">
+          <div class="row-1">
+            <div class="headings">Name:</div>
+            <div class="values">^name^</div>
+            <div class="headings">Age/ Gender:</div>
+            <div class="values">^age^ - ^gender^</div>
+            <div class="headings">Date:</div>
+            <div class="values">^date^</div>
+            <div class="headings">Case No.:</div>
+            <div class="values">^case^</div>
           </div>
-          <div class="table-2">
-            <div>Tuning Fork Tests</div>
-            <table>
-              <tr>
-                <td></td>
-                <td>Right<br />&nbsp;</td>
-                <td>Left<br />&nbsp;</td>
-              </tr>
-              <tr>
-                <td>Rinne</td>
-                <td>1</td>
-                <td>1</td>
-              </tr>
-              <tr>
-                <td>Weber</td>
-                <td>1</td>
-                <td>1</td>
-              </tr>
-            </table>
+          <div class="row-2">
+            <div class="headings">Chief Complaints:</div>
+            <div class="values">^complaints^</div>
           </div>
-          <div class="table-3">
-            <div>Speech Audiometry</div>
-            <table>
-              <tr>
-                <td></td>
-                <td>SAT<br />(dB HL)</td>
-                <td>SRT<br />(dB HL)</td>
-                <td>WRS<br />(%) @</td>
-                <td>ULC<br />(dB HL)</td>
-              </tr>
-              <tr>
-                <td>Right</td>
-                <td>1</td>
-                <td>1</td>
-                <td>11</td>
-                <td>11</td>
-              </tr>
-              <tr>
-                <td>Left</td>
-                <td>1</td>
-                <td>1</td>
-                <td>vl-wrs^</td>
-                <td>11</td>
-              </tr>
-            </table>
+          <div class="graph">
+            <div class="title bold-me">Pure Tone Audiometry</div>
+            <div class="main-graphs">
+              <div class="right-ear">
+                <div class="">Right Ear</div>
+                <img src="right_ear.png" alt="" />
+              </div>
+              <div class="left-ear">
+                <div class="">Left Ear</div>
+                <img src="left_ear.png" alt="" />
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="row-5">
-          <div>Right Ear:</div>
-          <div class="values">right side is shown here</div>
-        </div>
-        <div class="row-6">
-          <div>Left Ear:</div>
-          <div class="values">left side is shown here</div>
-        </div>
-        <div class="row-7">
-          <div>Recommendations:</div>
-          <div class="values">this is the recommendation section</div>
-        </div>
-        <div class="row-8">
-          <div class="row-8-blank"></div>
-          <div class="signature">
-            <div>Ramanjeet Kaur</div>
-            <div>Clinical Audiologist</div>
+          <div class="row-3">
+            <div class="headings">Comments:</div>
+            <div class="values">^comments^</div>
+          </div>
+          <div class="row-4">
+            <div class="table-1">
+              <div class="bold">Otoscopy</div>
+              <table>
+                <tr>
+                  <th>
+                    Right<br /><span class="table-sub">&nbsp;</span>&nbsp;
+                  </th>
+                  <th>Left<br /><span class="table-sub">&nbsp;</span></th>
+                </tr>
+                <tr>
+                  <td rowspan="2">TM visible</td>
+                  <td rowspan="2">
+                    TM visible <br />
+                    scarring on TM
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="table-2">
+              <div class="bold">Tuning Fork Tests</div>
+              <table>
+                <tr>
+                  <td></td>
+                  <th>Right<br /><span class="table-sub">&nbsp;</span></th>
+                  <th>Left<br /><span class="table-sub">&nbsp;</span></th>
+                </tr>
+                <tr>
+                  <th>Rinne</th>
+                  <td>+ve</td>
+                  <td>-ve</td>
+                </tr>
+                <tr>
+                  <th>Weber</th>
+                  <td style="position: relative">
+                    <div class="weber-left-arrow"></div>
+                  </td>
+                  <td style="position: relative">
+                    <div class="weber-plain-line"></div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="table-3">
+              <div class="bold">Speech Audiometry</div>
+              <table>
+                <tr>
+                  <td></td>
+                  <th>SAT<br /><span class="table-sub">(dB HL)</span></th>
+                  <th>SRT<br /><span class="table-sub">(dB HL)</span></th>
+                  <th>WRS<br /><span class="table-sub">(%)</span></th>
+                  <th>ULC<br /><span class="table-sub">(dB HL)</span></th>
+                </tr>
+                <tr>
+                  <th>Right</th>
+                  <td>25</td>
+                  <td>45</td>
+                  <td>75% @ 75dB HL</td>
+                  <td>75% @ 75dB HL</td>
+                </tr>
+                <tr>
+                  <th>Left</th>
+                  <td>20</td>
+                  <td>40</td>
+                  <td>vl-wrs^</td>
+                  <td>95% @ 65 dB HL</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div class="row-5">
+            <div class="headings">Right Ear:</div>
+            <div class="values">^right-ear^</div>
+          </div>
+          <div class="row-6">
+            <div class="headings">Left Ear:</div>
+            <div class="values">^left-ear^</div>
+          </div>
+          <div class="row-7">
+            <div class="headings">Recommendations:</div>
+            <div class="values">^reccomendations^</div>
+          </div>
+          <div class="row-8">
+            <div class="row-8-blank"></div>
+            <div class="signature">
+              <div>Ramanjeet Kaur</div>
+              <div>Clinical Audiologist</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+    <script>
+      $(document).ready(function () {
+        $("td").each((t) => {
+          resize_to_fit(t);
+        });
+      });
+
+      function resize_to_fit(t) {
+        var fontsize = $(t).css("font-size");
+        $(t).css("fontSize", parseFloat(fontsize) - 40);
+
+        if ($(t).height() >= $(t).parent().height()) {
+          resize_to_fit(t);
+        }
+      }
+    </script>
   </body>
 </html>
