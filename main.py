@@ -984,7 +984,7 @@ def MainWindow(opened=False, openedData={}):
             html_file = f.read()
         html_file = html_file.replace('^name^', name.get())
         html_file = html_file.replace('^age^', age.get())
-        html_file = html_file.replace('^gender^', gender.get())
+        html_file = html_file.replace('^gender^', myGender.get())
         html_file = html_file.replace('^date^', str(curr_date))
         try:
             cursor.execute('SELECT * FROM cases')
@@ -1013,7 +1013,7 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('__', "<br>")
         with open('template/export.html', 'w') as f:
             f.write(html_file)
-        insert_data_list = [name.get(), age.get(), gender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), tfw_right.get(), tfw_left.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]
+        insert_data_list = [name.get(), age.get(), myGender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), tfw_right.get(), tfw_left.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]
         cursor.execute("INSERT INTO `cases`(`name`, `age`, `gender`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `r-weber`, `l-weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", insert_data_list)
         conn.commit()
         driver = webdriver.Chrome('chromewebdriver.exe')
@@ -1027,7 +1027,7 @@ def MainWindow(opened=False, openedData={}):
             html_file = f.read()
         html_file = html_file.replace('^name^', name.get())
         html_file = html_file.replace('^age^', age.get())
-        html_file = html_file.replace('^gender^', myGender)
+        html_file = html_file.replace('^gender^', myGender,get())
         html_file = html_file.replace('^date^', str(curr_date))
         try:
             cursor.execute('SELECT * FROM cases')
@@ -1081,7 +1081,7 @@ def MainWindow(opened=False, openedData={}):
         # case_no.insert(0, the_case[0])
         name.insert(0, the_case[1])
         age.insert(0, the_case[2])
-        gender.insert(0, the_case[3])
+        myGender.set(the_case[3])
         complaints.insert(0, the_case[5])
         comments.insert(0, the_case[7])
         oto_right.insert(0, the_case[8])
