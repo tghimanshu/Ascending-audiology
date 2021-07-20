@@ -588,11 +588,13 @@ def MainWindow(opened=False, openedData={}):
             c2.create_text(oc[0], oc[1], text='S',font='calibri 20', tags=arg+str(points_count[arg]))
             points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
             points_count[arg]+=1
+            print(points)
         if (arg == 'blue_aided_sf'):
             re_check_y_for_same(arg, oc[0], oc[1])
             c2.create_text(oc[0], oc[1], text='A',font='calibri 20', tags=arg+str(points_count[arg]))
             points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
             points_count[arg]+=1
+            print(points)
         if(arg == 'blue_X'):
             re_check_y_for_same(arg, oc[0], oc[1])
             c2.create_image(oc[0], oc[1], image=blue_X, tags=arg+str(points_count[arg]))
@@ -1027,7 +1029,7 @@ def MainWindow(opened=False, openedData={}):
             html_file = f.read()
         html_file = html_file.replace('^name^', name.get())
         html_file = html_file.replace('^age^', age.get())
-        html_file = html_file.replace('^gender^', myGender,get())
+        html_file = html_file.replace('^gender^', myGender.get())
         html_file = html_file.replace('^date^', str(curr_date))
         try:
             cursor.execute('SELECT * FROM cases')
@@ -1055,8 +1057,8 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^reccomendations^', rec.get())
         with open('template/export.html', 'w') as f:
             f.write(html_file)
-        insert_data_list = [name.get(), age.get(), myGender, str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), tfw_right.get(), tfw_left.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get(), int(the_case[0])]
-        cursor.execute("UPDATE `cases` SET `name` = ?, `age` = ?, `gender` = ?, `date` = ?, `complaints` = ?, `graphs` = ?, `comments` = ?, `r-oto` = ?, `l-oto` = ?, `r-rennie` = ?, `l-rennie` = ?, `r-weber` = ?, `l-weber` = ?, `r-sat` = ?, `l-sat` = ?, `r-srt` = ?, `l-srt` = ?, `r-wrs` = ?, `l-wrs` = ?, `r-ulc` = ?, `l-ulc` = ?, `right-ear` = ?, `left-ear` = ?, `recommendation` = ? WHERE `case_id` = ?", insert_data_list)
+        insert_data_list = [name.get(), age.get(), myGender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), tfw_right.get(), tfw_left.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]
+        cursor.execute("INSERT INTO `cases`(`name`, `age`, `gender`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `r-weber`, `l-weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", insert_data_list)
         conn.commit()
         driver = webdriver.Chrome('chromewebdriver.exe')
         driver.get('E:\\projects\\ascending_audiology\\template\\export.html')
@@ -1078,6 +1080,7 @@ def MainWindow(opened=False, openedData={}):
 
     # For Opened Cases
     if opened:
+        print(the_case)
         # case_no.insert(0, the_case[0])
         name.insert(0, the_case[1])
         age.insert(0, the_case[2])
