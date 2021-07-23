@@ -29,8 +29,7 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS cases (
     'l-oto' TEXT,
     'r-rennie' TEXT,
     'l-rennie' TEXT,
-    'r-weber' TEXT,
-    'l-weber' TEXT,
+    'weber' TEXT,
     'r-sat' TEXT,
     'l-sat' TEXT,
     'r-srt' TEXT,
@@ -875,10 +874,10 @@ def MainWindow(opened=False, openedData={}):
     tfr_left = ttk.Entry(tf_table)
     tfr_left.grid(row=2, column=2, padx=5)
 
-    tfw_right = ttk.Entry(tf_table)
-    tfw_right.grid(row=3, column=1, padx=5)
-    tfw_left = ttk.Entry(tf_table)
-    tfw_left.grid(row=3, column=2, padx=5)
+    # tfw_right = ttk.Entry(tf_table)
+    # tfw_right.grid(row=3, column=1, padx=5)
+    # tfw_left = ttk.Entry(tf_table)
+    # tfw_left.grid(row=3, column=2, padx=5)
 
     tf_r = ttk.Label(tf_table, text="Rinne")
     tf_r.grid(row=2, column=0)
@@ -889,6 +888,18 @@ def MainWindow(opened=False, openedData={}):
     tf_right_label.grid(row=1, column=1)
     tf_left_label = ttk.Label(tf_table, text="Left")
     tf_left_label.grid(row=1, column=2)
+
+    tfw_right = ttk.Frame(tf_table)
+    tfw_right.grid(row=3, column=1, columnspan=2)
+    myWeber = StringVar()
+    wr_male = ttk.Radiobutton(tfw_right, variable=myWeber, text="Left", value="left")
+    wr_male.grid(row=0, column=0)
+    wr_female = ttk.Radiobutton(tfw_right, variable=myWeber, text="Right", value="right")
+    wr_female.grid(row=0, column=1)
+    wr_3 = ttk.Radiobutton(tfw_right, variable=myWeber, text="Inside", value="in")
+    wr_3.grid(row=0, column=2)
+    wr_5 = ttk.Radiobutton(tfw_right, variable=myWeber, text="Outside", value="out")
+    wr_5.grid(row=0, column=3)
 
 
     '''
@@ -999,8 +1010,18 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^l-oto^', oto_left.get())
         html_file = html_file.replace('^r-rennie^', tfr_right.get())
         html_file = html_file.replace('^l-rennie^', tfr_left.get())
-        html_file = html_file.replace('^r-weber^', tfw_right.get())
-        html_file = html_file.replace('^l-weber^', tfw_left.get())
+        if(myWeber.get() == "left"):
+            html_file = html_file.replace('^r-weber^', "<div class='la'></div>")
+            html_file = html_file.replace('^l-weber^', "<div class='a'></div>")
+        elif(myWeber.get() == "right"):
+            html_file = html_file.replace('^r-weber^', "<div class='a'></div>")
+            html_file = html_file.replace('^l-weber^', "<div class='ra'></div>")
+        elif(myWeber.get() == "in"):
+            html_file = html_file.replace('^r-weber^', "<div class='ra'></div>")
+            html_file = html_file.replace('^l-weber^', "<div class='la'></div>")
+        elif(myWeber.get() == "out"):
+            html_file = html_file.replace('^r-weber^', "<div class='la'></div>")
+            html_file = html_file.replace('^l-weber^', "<div class='ra'></div>")
         html_file = html_file.replace('^r-sat^', sa_right_sat.get())
         html_file = html_file.replace('^l-sat^', sa_left_sat.get())
         html_file = html_file.replace('^r-srt^', sa_right_srt.get())
@@ -1015,8 +1036,8 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('__', "<br>")
         with open('template/export.html', 'w') as f:
             f.write(html_file)
-        insert_data_list = [name.get(), age.get(), myGender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), tfw_right.get(), tfw_left.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]
-        cursor.execute("INSERT INTO `cases`(`name`, `age`, `gender`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `r-weber`, `l-weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", insert_data_list)
+        insert_data_list = [name.get(), age.get(), myGender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]
+        cursor.execute("INSERT INTO `cases`(`name`, `age`, `gender`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", insert_data_list)
         conn.commit()
         driver = webdriver.Chrome('chromewebdriver.exe')
         driver.get('E:\\projects\\ascending_audiology\\template\\export.html')
@@ -1042,8 +1063,18 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^l-oto^', oto_left.get())
         html_file = html_file.replace('^r-rennie^', tfr_right.get())
         html_file = html_file.replace('^l-rennie^', tfr_left.get())
-        html_file = html_file.replace('^r-weber^', tfw_right.get())
-        html_file = html_file.replace('^l-weber^', tfw_left.get())
+        if(myWeber.get() == "left"):
+            html_file = html_file.replace('^r-weber^', "<div class='la'></div>")
+            html_file = html_file.replace('^l-weber^', "<div class='a'></div>")
+        elif(myWeber.get() == "right"):
+            html_file = html_file.replace('^r-weber^', "<div class='a'></div>")
+            html_file = html_file.replace('^l-weber^', "<div class='ra'></div>")
+        elif(myWeber.get() == "in"):
+            html_file = html_file.replace('^r-weber^', "<div class='ra'></div>")
+            html_file = html_file.replace('^l-weber^', "<div class='la'></div>")
+        elif(myWeber.get() == "out"):
+            html_file = html_file.replace('^r-weber^', "<div class='la'></div>")
+            html_file = html_file.replace('^l-weber^', "<div class='ra'></div>")
         html_file = html_file.replace('^r-sat^', sa_right_sat.get())
         html_file = html_file.replace('^l-sat^', sa_left_sat.get())
         html_file = html_file.replace('^r-srt^', sa_right_srt.get())
@@ -1057,8 +1088,8 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^reccomendations^', rec.get())
         with open('template/export.html', 'w') as f:
             f.write(html_file)
-        insert_data_list = [name.get(), age.get(), myGender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), tfw_right.get(), tfw_left.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]
-        cursor.execute("INSERT INTO `cases`(`name`, `age`, `gender`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `r-weber`, `l-weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", insert_data_list)
+        insert_data_list = [name.get(), age.get(), myGender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get(), the_case[0]]
+        cursor.execute("UPDATE `cases` SET `name` = ?, `age` = ?, `gender` = ?, `date` = ?, `complaints` = ?, `graphs` = ?, `comments` = ?, `r-oto` = ?, `l-oto` = ?, `r-rennie` = ?, `l-rennie` = ?, `weber` = ?, `r-sat` = ?, `l-sat` = ?, `r-srt` = ?, `l-srt` = ?, `r-wrs` = ?, `l-wrs` = ?, `r-ulc` = ?, `l-ulc` = ?, `right-ear` = ?, `left-ear` = ?, `recommendation` = ? WHERE `case_id` = ?", insert_data_list)
         conn.commit()
         driver = webdriver.Chrome('chromewebdriver.exe')
         driver.get('E:\\projects\\ascending_audiology\\template\\export.html')
@@ -1091,19 +1122,18 @@ def MainWindow(opened=False, openedData={}):
         oto_left.insert(0, the_case[9])
         tfr_right.insert(0, the_case[10])
         tfr_left.insert(0, the_case[11])
-        tfw_right.insert(0, the_case[12])
-        tfw_left.insert(0, the_case[13])
-        sa_right_sat.insert(0, the_case[14])
-        sa_left_sat.insert(0, the_case[15])
-        sa_right_srt.insert(0, the_case[16])
-        sa_left_srt.insert(0, the_case[17])
-        sa_right_wrs.insert(0, the_case[18])
-        sa_left_wrs.insert(0, the_case[19])
-        sa_right_wrs.insert(0, the_case[20])
-        sa_left_wrs.insert(0, the_case[21])
-        right_ear.insert(0, the_case[22])
-        left_ear.insert(0, the_case[23])
-        rec.insert(0, the_case[24])
+        myWeber.set(the_case[12])
+        sa_right_sat.insert(0, the_case[13])
+        sa_left_sat.insert(0, the_case[14])
+        sa_right_srt.insert(0, the_case[15])
+        sa_left_srt.insert(0, the_case[16])
+        sa_right_wrs.insert(0, the_case[17])
+        sa_left_wrs.insert(0, the_case[18])
+        sa_right_wrs.insert(0, the_case[19])
+        sa_left_wrs.insert(0, the_case[20])
+        right_ear.insert(0, the_case[21])
+        left_ear.insert(0, the_case[22])
+        rec.insert(0, the_case[23])
         
         def le_evn_opened(arg, p):
             oc = (p[0], p[1])
