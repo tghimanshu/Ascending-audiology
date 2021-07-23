@@ -990,6 +990,30 @@ def MainWindow(opened=False, openedData={}):
     from datetime import datetime
 
     curr_date = datetime.today().strftime('%Y-%m-%d')
+    def getPta(points):
+        lPtaVal = 0
+        rPtaVal = 0
+        if len(points['red_triangle']) != 0:
+            lpval = "red_triangle"
+        else:
+            lpval ="red_circle"
+
+        if len(points['blue_square']) != 0:
+            rpval = "blue_square"
+        else:
+            rpval ="blue_X"
+        for i in points[lpval]:
+            if (int(i[0]/13.5) == 10 or int(i[0]/13.5) == 14 or int(i[0]/13.5) == 18):
+                lPtaVal += (-5 * -int(i[1]/13.5-2))
+            pass
+        for i in points[rpval]:
+            if (int(i[0]/13.5) == 10 or int(i[0]/13.5) == 14 or int(i[0]/13.5) == 18):
+                rPtaVal += (-5 * -int(i[1]/13.5-2))
+            pass
+        lPtaVal = lPtaVal/len(points[lpval])
+        rPtaVal = rPtaVal/len(points[rpval])
+        return [str(round(lPtaVal,2)), str(round(rPtaVal,2))]
+        pass
 
     def submit_form():
         # take_ss()   
@@ -1022,6 +1046,8 @@ def MainWindow(opened=False, openedData={}):
         elif(myWeber.get() == "out"):
             html_file = html_file.replace('^r-weber^', "<div class='la'></div>")
             html_file = html_file.replace('^l-weber^', "<div class='ra'></div>")
+        html_file = html_file.replace('^r-pta^', getPta(points)[0])
+        html_file = html_file.replace('^l-pta^', getPta(points)[1])
         html_file = html_file.replace('^r-sat^', sa_right_sat.get())
         html_file = html_file.replace('^l-sat^', sa_left_sat.get())
         html_file = html_file.replace('^r-srt^', sa_right_srt.get())
@@ -1111,7 +1137,7 @@ def MainWindow(opened=False, openedData={}):
 
     # For Opened Cases
     if opened:
-        print(the_case)
+        # print(the_case)
         # case_no.insert(0, the_case[0])
         name.insert(0, the_case[1])
         age.insert(0, the_case[2])
@@ -1134,6 +1160,8 @@ def MainWindow(opened=False, openedData={}):
         right_ear.insert(0, the_case[21])
         left_ear.insert(0, the_case[22])
         rec.insert(0, the_case[23])
+
+        getPta(points)
         
         def le_evn_opened(arg, p):
             oc = (p[0], p[1])
