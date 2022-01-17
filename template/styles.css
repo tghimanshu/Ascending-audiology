@@ -74,7 +74,8 @@
 }
 .row-4 {
   display: grid;
-  grid-template-columns: auto auto auto;
+  /* grid-template-columns: 75% 25% 50%; */
+  background-color: red;
 }
 .table-1,
 .table-2,

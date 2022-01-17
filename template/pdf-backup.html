@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <meta name="viewport" content="width=d, initial-scale=1.0" /> -->
+    <title>Ascending Audiology</title>
+    <!-- <link rel="stylesheet" href="styles.css" /> -->
+    <style>
+      @page {
+        margin: 0;
+        size: A4;
+      }
+      @media print {
+        .a::before,
+        .la::before,
+        .ra::before {
+          -webkit-print-color-adjust: exact;
+        }
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      .body {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        padding: 25px;
+        /* background: red; */
+      }
+      .container {
+        position: relative;
+        height: 100%;
+        border: 1px dashed #333;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px;
+        align-items: center;
+      }
+      .header > img {
+        max-width: 200px;
+        height: auto;
+      }
+      .header > div {
+        font-size: 1rem;
+      }
+
+      .header-hr {
+        height: 2px;
+        background: black;
+        border: none;
+        border-radius: 4px;
+        width: 98%;
+        margin: 5px auto;
+      }
+
+      .personal-details {
+        padding: 10px 10px;
+      }
+
+      .row-1 {
+        display: grid;
+        /* grid-template-columns: auto; */
+        grid-template-columns: auto 1fr auto auto auto auto auto auto;
+        margin-bottom: 10px;
+      }
+      .row-2,
+      .row-5,
+      .row-6,
+      .row-7,
+      .row-8 {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+      .values {
+        padding: 0 10px;
+        /* font-weight: bold; */
+        /* text-align: center; */
+      }
+
+      .row-3 {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        margin-top: 2px;
+        margin-bottom: 20px;
+      }
+      .graph .title {
+        text-align: center;
+      }
+      .main-graphs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .row-4 {
+        display: grid;
+        grid-template-columns: 0.8fr 1fr 2fr;
+      }
+      .table-1,
+      .table-2,
+      .table-3 {
+        display: grid;
+        grid-template-rows: auto 1fr;
+        padding: 0 10px;
+        /* height: 100%; */
+        /* background: red; */
+      }
+      .table-1 div,
+      .table-2 div,
+      .table-3 div {
+        text-align: center;
+      }
+      .table-1 table,
+      .table-2 table,
+      .table-3 table {
+        border: 1px solid black;
+        margin: 0 auto;
+        height: 100%;
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      td {
+        padding: 2px;
+        border: 1px solid black;
+        /* height: max-content; */
+        text-align: center;
+      }
+      .bold-me {
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-bottom: 4px;
+      }
+      .main-graphs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        /* margin: 0 40px; */
+        text-align: center;
+      }
+      .main-graphs div img {
+        width: 100%;
+        height: auto;
+      }
+      .row-8 {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        /* display: grid;
+        grid-template-columns: 1fr auto; */
+        padding: 10px;
+        font-weight: bold;
+        text-align: center;
+      }
+      .headings {
+        font-weight: bold;
+      }
+      .arrow-container {
+        padding: 0;
+      }
+      .arrow-container .a,
+      .arrow-container .la,
+      .arrow-container .ra {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+      .a::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 4%;
+        background: black !important;
+        transform: translateY(-50%);
+      }
+      .ra::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 4%;
+        background: black !important;
+        transform: translateY(-50%);
+      }
+      .ra::after {
+        content: "";
+        position: absolute;
+        border: 6px solid black;
+        border-right-color: transparent;
+        border-top-color: transparent;
+        border-bottom-color: transparent;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%) translateX(50%);
+        width: 0;
+        height: 0;
+      }
+      /* left arrow */
+      .la::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 4%;
+        background: black;
+        transform: translateY(-50%);
+        z-index: 20;
+      }
+      .la::after {
+        content: "";
+        position: absolute;
+        border: 6px solid black;
+        border-left-color: transparent;
+        border-top-color: transparent;
+        border-bottom-color: transparent;
+        top: 50%;
+        left: 0;
+        transform: translateY(-50%) translateX(-50%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="body">
+      <div class="container">
+        <div class="header">
+          <img src="logo.png" alt="logo" />
+          <div>
+            <div>14, ‘X’ Point, S. V. Road,</div>
+            <div>Kandivali (W), Mumbai – 400067</div>
+            <div>Ph. No.: +91 - 8928111280</div>
+            <div>Website: www.ascendingaudiology.com</div>
+            <div>Email: ascending.audiology@gmail.com</div>
+          </div>
+        </div>
+        <!-- header -->
+        <hr class="header-hr" />
+        <div class="personal-details">
+          <div class="row-1">
+            <div class="headings">Name:</div>
+            <div class="values">^name^</div>
+            <div class="headings">Age/ Gender:</div>
+            <div class="values">^age^ - ^gender^</div>
+            <div class="headings">Date:</div>
+            <div class="values">^date^</div>
+            <div class="headings">Case No.:</div>
+            <div class="values">^case^</div>
+          </div>
+          <div class="row-2">
+            <div class="headings">Chief Complaints:</div>
+            <div class="values">^complaints^</div>
+          </div>
+          <div class="graph">
+            <div class="title bold-me">Pure Tone Audiometry</div>
+            <div class="main-graphs">
+              <div class="right-ear">
+                <div class="">Right Ear</div>
+                <img src="right_ear.png" alt="" />
+              </div>
+              <div class="left-ear">
+                <div class="">Left Ear</div>
+                <img src="left_ear.png" alt="" />
+              </div>
+            </div>
+          </div>
+          <div class="row-3">
+            <div class="headings">Comments:</div>
+            <div class="values">^comments^</div>
+          </div>
+          <div class="row-4">
+            <div class="table-1">
+              <div>Otoscopy</div>
+              <table>
+                <tr style="height: min-content">
+                  <td>Right<br />&nbsp;</td>
+                  <td>Left<br />&nbsp;</td>
+                </tr>
+                <tr>
+                  <td rowspan="2">^r-oto^</td>
+                  <td rowspan="2">^l-oto^</td>
+                </tr>
+              </table>
+            </div>
+            <div class="table-2">
+              <div>Tuning Fork Tests</div>
+              <table>
+                <tr>
+                  <td></td>
+                  <td>Right<br />&nbsp;</td>
+                  <td>Left<br />&nbsp;</td>
+                </tr>
+                <tr>
+                  <td>Rinne</td>
+                  <td>^r-rennie^</td>
+                  <td>^l-rennie^</td>
+                </tr>
+                <tr>
+                  <td>Weber</td>
+                  <!-- <td>^r-weber^</td> -->
+                  <!-- <td>^l-weber^</td> -->
+                  <td class="arrow-container">^r-weber^</td>
+                  <td class="arrow-container">^l-weber^</td>
+                </tr>
+              </table>
+            </div>
+            <div class="table-3">
+              <div>Speech Audiometry</div>
+              <table>
+                <tr>
+                  <td></td>
+                  <td>PTA<br />(dB HL)</td>
+                  <td>SAT<br />(dB HL)</td>
+                  <td>SRT<br />(dB HL)</td>
+                  <td>WRS<br />(%) @</td>
+                  <td>ULC<br />(dB HL)</td>
+                </tr>
+                <tr>
+                  <td>Right</td>
+                  <td>^r-pta^</td>
+                  <td>^r-sat^</td>
+                  <td>^r-srt^</td>
+                  <td>^r-wrs^</td>
+                  <td>^r-ulc^</td>
+                </tr>
+                <tr>
+                  <td>Left</td>
+                  <td>^l-pta^</td>
+                  <td>^l-sat^</td>
+                  <td>^l-srt^</td>
+                  <td>^l-wrs^</td>
+                  <td>^l-ulc^</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div class="row-5">
+            <div class="headings">Right Ear:</div>
+            <div class="values">^right-ear^</div>
+          </div>
+          <div class="row-6">
+            <div class="headings">Left Ear:</div>
+            <div class="values">^left-ear^</div>
+          </div>
+          <div class="row-7">
+            <div class="headings">Recommendations:</div>
+            <div class="values">^reccomendations^</div>
+          </div>
+          <div class="row-8">
+            <div class="row-8-blank"></div>
+            <div class="signature">
+              <div>Ramanjeet Kaur</div>
+              <div>Clinical Audiologist</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      var data = document.getElementsByTagName("td");
+      data.forEach((elem) => {
+        while (elem.scrollHeight > elem.clientHeight) {
+          elem.style.fontSize -= "1px";
+        }
+      });
+    </script>
+  </body>
+</html>

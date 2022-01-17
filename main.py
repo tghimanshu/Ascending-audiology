@@ -4,13 +4,17 @@ from tkinter import *
 from tkcalendar import Calendar, DateEntry
 from PIL import Image, ImageTk
 import pyscreenshot as ImageGrab
-import tkinter.tix as tix
+# import tkinter.tix as tix
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import sqlite3
 import json
 import time
 import pandas as pd
+import chromedriver_autoinstaller
+
+
+chromedriver_autoinstaller.install()
 
 # conn = sqlite3.connect(host='localhost', user='root', password='', database='ascending_audiology')
 conn = sqlite3.connect('ascending_audiology.db')
