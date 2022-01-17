@@ -1,3 +1,4 @@
+# make case no custom - create exe and install by tomm 4pm
 import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter import *
@@ -1029,7 +1030,11 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^name^', name.get())
         html_file = html_file.replace('^age^', age.get())
         html_file = html_file.replace('^gender^', myGender.get())
-        html_file = html_file.replace('^date^', str(curr_date))
+        formatted_date = str(curr_date)
+        formatted_date = formatted_date.split('-')
+        formatted_date = '-'.join(formatted_date[::-1])
+        # html_file = html_file.replace('^date^',  str(curr_date))
+        html_file = html_file.replace('^date^',  formatted_date)
         try:
             cursor.execute('SELECT * FROM cases')
             html_file = html_file.replace('^case^', str(cursor.lastrowid + 1))
@@ -1084,7 +1089,11 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^name^', name.get())
         html_file = html_file.replace('^age^', age.get())
         html_file = html_file.replace('^gender^', myGender.get())
-        html_file = html_file.replace('^date^', str(curr_date))
+        formatted_date = str(curr_date)
+        formatted_date = formatted_date.split('-')
+        formatted_date = '-'.join(formatted_date[::-1])
+        # html_file = html_file.replace('^date^',  str(curr_date))
+        html_file = html_file.replace('^date^', formatted_date)
         try:
             cursor.execute('SELECT * FROM cases')
             html_file = html_file.replace('^case^', str(cursor.lastrowid + 1))

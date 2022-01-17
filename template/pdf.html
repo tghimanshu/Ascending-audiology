@@ -149,16 +149,20 @@
         border-collapse: collapse;
         width: 100%;
       }
-      tr:first-child {
-        height: 60px;
-      }
 
       td {
-        padding: 2px;
+        /* padding: 2px; */
+        padding-top: 5px;
+        padding-bottom: 5px;
         border: 1px solid black;
         /* height: max-content; */
         text-align: center;
         /* height: ; */
+      }
+
+      tr:first-child {
+        height: 55px;
+        padding: 0;
       }
 
       .table-1 > tr:first-child td,
@@ -312,7 +316,7 @@
             <div class="headings">Name:</div>
             <div class="values">^name^</div>
             <div class="headings">Age/ Gender:</div>
-            <div class="values">^age^ - ^gender^</div>
+            <div class="values">^age^yrs / ^gender^</div>
             <div class="headings">Date:</div>
             <div class="values">^date^</div>
             <div class="headings">Case No.:</div>
