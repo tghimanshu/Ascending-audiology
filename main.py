@@ -23,6 +23,7 @@ cursor = conn.cursor()
 cursor.execute('''CREATE TABLE IF NOT EXISTS cases (
     case_id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
+    number TEXT,
     age TEXT,
     gender TEXT,
     date TEXT,
@@ -86,7 +87,7 @@ def MainWindow(opened=False, openedData={}):
         tv.column(1, anchor=tk.N)
         tv.column(2, anchor=tk.N)
         for r in res:
-            tv.insert('', 'end', values=(r[0], r[1], r[4]))
+            tv.insert('', 'end', values=(r[0], r[1], r[5]))
 
         def open_the_data():
             itemIndex = tv.focus()
@@ -178,6 +179,8 @@ def MainWindow(opened=False, openedData={}):
     g_female.grid(row=0, column=1)
     complaints = ttk.Entry(personal_details, width=100)
     complaints.grid(row=1, column=1, columnspan=7, sticky="we")
+    number = ttk.Entry(personal_details, width=100)
+    number.grid(row=2, column=1, columnspan=7, sticky="we")
 
     # Label
     name_label = ttk.Label(personal_details, text="Name: ")
@@ -186,14 +189,14 @@ def MainWindow(opened=False, openedData={}):
     age_label.grid(row=0, column=2, padx=10, pady=10)
     gender_label = ttk.Label(personal_details, text="Gender: ")
     gender_label.grid(row=0, column=4, padx=10, pady=10)
-    complaints_label = ttk.Label(personal_details, text="Cheif Complaints: ")
-    complaints_label.grid(row=1, column=0, padx=10, pady=10)
+    number_label = ttk.Label(personal_details, text="Phone Number: ")
+    number_label.grid(row=2, column=0, padx=10, pady=10)
 
     '''
     GRAPHS
     '''
     if opened:
-        points = json.loads(the_case[6])
+        points = json.loads(the_case[7])
         
     else:
         points = {
@@ -1066,8 +1069,8 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('__', "<br>")
         with open('template/export.html', 'w') as f:
             f.write(html_file)
-        insert_data_list = [name.get(), age.get(), myGender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]
-        cursor.execute("INSERT INTO `cases`(`name`, `age`, `gender`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", insert_data_list)
+        insert_data_list = [name.get(),number.get(), age.get(), myGender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]
+        cursor.execute("INSERT INTO `cases`(`name`, `number`, `age`, `gender`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", insert_data_list)
         conn.commit()
         driver = webdriver.Chrome('chromewebdriver.exe')
         driver.get('E:\\projects\\ascending_audiology\\template\\export.html')
@@ -1118,8 +1121,8 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^reccomendations^', rec.get())
         with open('template/export.html', 'w') as f:
             f.write(html_file)
-        insert_data_list = [name.get(), age.get(), myGender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get(), the_case[0]]
-        cursor.execute("UPDATE `cases` SET `name` = ?, `age` = ?, `gender` = ?, `date` = ?, `complaints` = ?, `graphs` = ?, `comments` = ?, `r-oto` = ?, `l-oto` = ?, `r-rennie` = ?, `l-rennie` = ?, `weber` = ?, `r-sat` = ?, `l-sat` = ?, `r-srt` = ?, `l-srt` = ?, `r-wrs` = ?, `l-wrs` = ?, `r-ulc` = ?, `l-ulc` = ?, `right-ear` = ?, `left-ear` = ?, `recommendation` = ? WHERE `case_id` = ?", insert_data_list)
+        insert_data_list = [name.get(), number.get(), age.get(), myGender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get(), the_case[0]]
+        cursor.execute("UPDATE `cases` SET `name` = ?, `number` = ?, `age` = ?, `gender` = ?, `date` = ?, `complaints` = ?, `graphs` = ?, `comments` = ?, `r-oto` = ?, `l-oto` = ?, `r-rennie` = ?, `l-rennie` = ?, `weber` = ?, `r-sat` = ?, `l-sat` = ?, `r-srt` = ?, `l-srt` = ?, `r-wrs` = ?, `l-wrs` = ?, `r-ulc` = ?, `l-ulc` = ?, `right-ear` = ?, `left-ear` = ?, `recommendation` = ? WHERE `case_id` = ?", insert_data_list)
         conn.commit()
         driver = webdriver.Chrome('chromewebdriver.exe')
         driver.get('E:\\projects\\ascending_audiology\\template\\export.html')
@@ -1144,26 +1147,27 @@ def MainWindow(opened=False, openedData={}):
         # print(the_case)
         # case_no.insert(0, the_case[0])
         name.insert(0, the_case[1])
-        age.insert(0, the_case[2])
-        myGender.set(the_case[3])
-        complaints.insert(0, the_case[5])
-        comments.insert(0, the_case[7])
-        oto_right.insert(0, the_case[8])
-        oto_left.insert(0, the_case[9])
-        tfr_right.insert(0, the_case[10])
-        tfr_left.insert(0, the_case[11])
-        myWeber.set(the_case[12])
-        sa_right_sat.insert(0, the_case[13])
-        sa_left_sat.insert(0, the_case[14])
-        sa_right_srt.insert(0, the_case[15])
-        sa_left_srt.insert(0, the_case[16])
-        sa_right_wrs.insert(0, the_case[17])
-        sa_left_wrs.insert(0, the_case[18])
-        sa_right_wrs.insert(0, the_case[19])
-        sa_left_wrs.insert(0, the_case[20])
-        right_ear.insert(0, the_case[21])
-        left_ear.insert(0, the_case[22])
-        rec.insert(0, the_case[23])
+        number.insert(0,the_case[2])
+        age.insert(0, the_case[3])
+        myGender.set(the_case[4])
+        complaints.insert(0, the_case[6])
+        comments.insert(0, the_case[8])
+        oto_right.insert(0, the_case[9])
+        oto_left.insert(0, the_case[10])
+        tfr_right.insert(0, the_case[11])
+        tfr_left.insert(0, the_case[12])
+        myWeber.set(the_case[13])
+        sa_right_sat.insert(0, the_case[14])
+        sa_left_sat.insert(0, the_case[15])
+        sa_right_srt.insert(0, the_case[16])
+        sa_left_srt.insert(0, the_case[17])
+        sa_right_wrs.insert(0, the_case[18])
+        sa_left_wrs.insert(0, the_case[19])
+        sa_right_wrs.insert(0, the_case[20])
+        sa_left_wrs.insert(0, the_case[21])
+        right_ear.insert(0, the_case[22])
+        left_ear.insert(0, the_case[23])
+        rec.insert(0, the_case[24])
 
         getPta(points)
         
