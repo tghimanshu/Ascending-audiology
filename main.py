@@ -3,8 +3,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from tkinter import *
 from tkcalendar import Calendar, DateEntry
-from PIL import Image, ImageTk
-import pyscreenshot as ImageGrab
+from PIL import Image, ImageTk, ImageGrab
+# import pyscreenshot as ImageGrab
 # import tkinter.tix as tix
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -190,6 +190,8 @@ def MainWindow(opened=False, openedData={}):
     age_label.grid(row=0, column=2, padx=10, pady=10)
     gender_label = ttk.Label(personal_details, text="Gender: ")
     gender_label.grid(row=0, column=4, padx=10, pady=10)
+    complaints_label = ttk.Label(personal_details, text="Consumer Complaints")
+    complaints_label.grid(row=1, column=0, padx=10, pady=10)
     number_label = ttk.Label(personal_details, text="Phone Number: ")
     number_label.grid(row=2, column=0, padx=10, pady=10)
 
@@ -1077,7 +1079,7 @@ def MainWindow(opened=False, openedData={}):
         insert_data_list = [name.get(),number.get(), age.get(), myGender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]
         cursor.execute("INSERT INTO `cases`(`name`, `number`, `age`, `gender`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", insert_data_list)
         conn.commit()
-        driver = webdriver.Chrome('chromewebdriver.exe')
+        driver = webdriver.Chrome()
         driver.get('E:\\projects\\ascending_audiology\\template\\export.html')
         driver.maximize_window()
         driver.execute_script('window.print()')

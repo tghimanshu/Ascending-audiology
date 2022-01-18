@@ -1,0 +1,107 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+/* 
+.container {
+  width: 3508px;
+  height: 2480px;
+  background: #ccc;
+} */
+.container {
+  /* height: 10px; */
+  margin: 25px;
+  /* border-radius: 5px; */
+  border: 2px dashed #333;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  align-items: center;
+}
+.header > img {
+  max-width: 450px;
+  height: auto;
+}
+.header > div {
+  font-size: 1.3rem;
+}
+
+.header-hr {
+  height: 4px;
+  background: black;
+  width: 98%;
+  margin: 10px auto;
+}
+
+.personal-details {
+  padding: 20px;
+}
+
+.row-1 {
+  display: grid;
+  /* grid-template-columns: auto; */
+  grid-template-columns: auto 1fr auto auto auto auto auto auto;
+  margin-bottom: 10px;
+}
+.row-2,
+.row-3,
+.row-5,
+.row-6,
+.row-7 {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.values {
+  padding: 0 40px;
+  font-weight: bold;
+  /* text-align: center; */
+}
+.graph {
+  /* padding: 20px; */
+}
+.graph .title {
+  text-align: center;
+}
+.main-graphs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.row-4 {
+  display: grid;
+  /* grid-template-columns: 75% 25% 50%; */
+  background-color: red;
+}
+.table-1,
+.table-2,
+.table-3 {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  /* height: 100%; */
+  /* background: red; */
+}
+.table-1 div,
+.table-2 div,
+.table-3 div {
+  text-align: center;
+}
+.table-1 table,
+.table-2 table,
+.table-3 table {
+  border: 2px solid black;
+  margin: 0 auto;
+  height: 100%;
+  border-collapse: collapse;
+}
+
+td {
+  padding: 15px;
+  border: 2px solid black;
+  /* height: max-content; */
+  text-align: center;
+}
