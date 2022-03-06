@@ -13,6 +13,7 @@ import json
 import time
 import pandas as pd
 import chromedriver_autoinstaller
+import os
 
 
 chromedriver_autoinstaller.install()
@@ -1080,7 +1081,7 @@ def MainWindow(opened=False, openedData={}):
         cursor.execute("INSERT INTO `cases`(`name`, `number`, `age`, `gender`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", insert_data_list)
         conn.commit()
         driver = webdriver.Chrome()
-        driver.get('E:\\projects\\ascending_audiology\\template\\export.html')
+        driver.get(os.getcwd() + '\\template\\export.html')
         driver.maximize_window()
         driver.execute_script('window.print()')
     
@@ -1136,7 +1137,7 @@ def MainWindow(opened=False, openedData={}):
         cursor.execute("UPDATE `cases` SET `name` = ?, `number` = ?, `age` = ?, `gender` = ?, `date` = ?, `complaints` = ?, `graphs` = ?, `comments` = ?, `r-oto` = ?, `l-oto` = ?, `r-rennie` = ?, `l-rennie` = ?, `weber` = ?, `r-sat` = ?, `l-sat` = ?, `r-srt` = ?, `l-srt` = ?, `r-wrs` = ?, `l-wrs` = ?, `r-ulc` = ?, `l-ulc` = ?, `right-ear` = ?, `left-ear` = ?, `recommendation` = ? WHERE `case_id` = ?", insert_data_list)
         conn.commit()
         driver = webdriver.Chrome('chromewebdriver.exe')
-        driver.get('E:\\projects\\ascending_audiology\\template\\export.html')
+        driver.get(os.getcwd() + '\\template\\export.html')
         driver.maximize_window()
         driver.execute_script('window.print()')
         pass
