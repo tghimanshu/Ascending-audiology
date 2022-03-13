@@ -112,6 +112,8 @@ def MainWindow(opened=False, openedData={}):
         # print(the_case)
     # Main Window Start
     root = tk.Tk()
+    # print("The width of Tkinter window:", root.winfo_width())
+    # print("The height of Tkinter window:", root.winfo_height())
     # root.set_theme("radiance")
 
     root.state('zoomed')
@@ -257,7 +259,7 @@ def MainWindow(opened=False, openedData={}):
     graph_axis = PhotoImage(file='graph_axis.png')
     my_graph = Frame(window)
     my_graph.pack()
-    le_graph_frame = Frame(my_graph, width=436, height=436, background="bisque")
+    le_graph_frame = Frame(my_graph, width=436, height=436, background="red")
     re_graph_frame = Frame(my_graph, width=436, height=436, background="bisque")
 
     le_graph_frame.grid(row=0, column=0)
