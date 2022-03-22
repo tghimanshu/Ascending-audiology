@@ -112,11 +112,12 @@ def MainWindow(opened=False, openedData={}):
         # print(the_case)
     # Main Window Start
     root = tk.Tk()
+    root.geometry("1280x720")
     # print("The width of Tkinter window:", root.winfo_width())
     # print("The height of Tkinter window:", root.winfo_height())
     # root.set_theme("radiance")
 
-    root.state('zoomed')
+    # root.state('zoomed')
     root.title("Ascending Audiology")
     
     def export():
@@ -182,7 +183,9 @@ def MainWindow(opened=False, openedData={}):
     g_female = ttk.Radiobutton(gender, variable=myGender, text="Female", value="F")
     g_female.grid(row=0, column=1)
     complaints = ttk.Entry(personal_details, width=100)
-    complaints.grid(row=1, column=1, columnspan=7, sticky="we")
+    complaints.grid(row=1, column=1, columnspan=5, sticky="we")
+    case_id = ttk.Entry(personal_details, width=25)
+    case_id.grid(row=1, column=7)
     number = ttk.Entry(personal_details, width=100)
     number.grid(row=2, column=1, columnspan=7, sticky="we")
 
@@ -195,6 +198,8 @@ def MainWindow(opened=False, openedData={}):
     gender_label.grid(row=0, column=4, padx=10, pady=10)
     complaints_label = ttk.Label(personal_details, text="Consumer Complaints")
     complaints_label.grid(row=1, column=0, padx=10, pady=10)
+    case_id_label = ttk.Label(personal_details, text="Case Id")
+    case_id_label.grid(row=1, column=6, padx=10, pady=10)
     number_label = ttk.Label(personal_details, text="Phone Number: ")
     number_label.grid(row=2, column=0, padx=10, pady=10)
 
@@ -1076,7 +1081,7 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^right-ear^', right_ear.get())
         html_file = html_file.replace('^left-ear^', left_ear.get())
         html_file = html_file.replace('^reccomendations^', rec.get())
-        html_file = html_file.replace('__', "<br>")
+        html_file = html_file.replace('__', "<br />")
         with open('template/export.html', 'w') as f:
             f.write(html_file)
         insert_data_list = [name.get(),number.get(), age.get(), myGender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]

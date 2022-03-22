@@ -159,6 +159,16 @@
         text-align: center;
         /* height: ; */
       }
+      th {
+        /* padding: 2px; */
+        padding-top: 5px;
+        padding-bottom: 5px;
+        border: 1px solid black;
+        /* height: max-content; */
+        font-weight: bold;
+        text-align: center;
+        /* height: ; */
+      }
 
       tr:first-child {
         height: 55px;
@@ -316,7 +326,7 @@
             <div class="headings">Name:</div>
             <div class="values">^name^</div>
             <div class="headings">Age/ Gender:</div>
-            <div class="values">^age^yrs / ^gender^</div>
+            <div class="values">^age^ yrs / ^gender^</div>
             <div class="headings">Date:</div>
             <div class="values">^date^</div>
             <div class="headings">Case No.:</div>
@@ -348,8 +358,8 @@
               <div style="font-weight: bold; margin-bottom: 8px">Otoscopy</div>
               <table>
                 <tr>
-                  <td>Right</td>
-                  <td>Left</td>
+                  <th>Right</th>
+                  <th>Left</th>
                 </tr>
                 <tr>
                   <td rowspan="2">^r-oto^</td>
@@ -364,16 +374,16 @@
               <table>
                 <tr>
                   <td></td>
-                  <td>Right</td>
-                  <td>Left</td>
+                  <th>Right</th>
+                  <th>Left</th>
                 </tr>
                 <tr>
-                  <td>Rinne</td>
+                  <th>Rinne</th>
                   <td>^r-rennie^</td>
                   <td>^l-rennie^</td>
                 </tr>
                 <tr>
-                  <td>Weber</td>
+                  <th>Weber</th>
                   <!-- <td>^r-weber^</td> -->
                   <!-- <td>^l-weber^</td> -->
                   <td class="arrow-container">^r-weber^</td>
@@ -388,14 +398,14 @@
               <table>
                 <tr>
                   <td></td>
-                  <td>PTA<br />(dB HL)</td>
-                  <td>SAT<br />(dB HL)</td>
-                  <td>SRT<br />(dB HL)</td>
-                  <td>WRS<br />(%) @</td>
-                  <td>ULC<br />(dB HL)</td>
+                  <th>PTA<br />(dB HL)</th>
+                  <th>SAT<br />(dB HL)</th>
+                  <th>SRT<br />(dB HL)</th>
+                  <th>WRS<br />(%) @</th>
+                  <th>ULC<br />(dB HL)</th>
                 </tr>
                 <tr>
-                  <td>Right</td>
+                  <th>Right</th>
                   <td>^r-pta^</td>
                   <td>^r-sat^</td>
                   <td>^r-srt^</td>
@@ -403,7 +413,7 @@
                   <td>^r-ulc^</td>
                 </tr>
                 <tr>
-                  <td>Left</td>
+                  <th>Left</th>
                   <td>^l-pta^</td>
                   <td>^l-sat^</td>
                   <td>^l-srt^</td>
