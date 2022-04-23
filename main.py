@@ -14,6 +14,7 @@ import time
 import pandas as pd
 import chromedriver_autoinstaller
 import os
+import tkcap
 
 
 chromedriver_autoinstaller.install()
@@ -112,7 +113,7 @@ def MainWindow(opened=False, openedData={}):
         # print(the_case)
     # Main Window Start
     root = tk.Tk()
-    root.geometry("1280x720")
+    root.geometry("1920x1080")
     # print("The width of Tkinter window:", root.winfo_width())
     # print("The height of Tkinter window:", root.winfo_height())
     # root.set_theme("radiance")
@@ -801,12 +802,18 @@ def MainWindow(opened=False, openedData={}):
 
     def create_ss():
         box = (le_graph_frame.winfo_rootx(),le_graph_frame.winfo_rooty(),le_graph_frame.winfo_rootx()+le_graph_frame.winfo_width(),le_graph_frame.winfo_rooty() + le_graph_frame.winfo_height())
+        # box = (le_graph_frame.winfo_rootx(),le_graph_frame.winfo_rooty(), 500 , 500)
         box2 = (re_graph_frame.winfo_rootx(), re_graph_frame.winfo_rooty(), re_graph_frame.winfo_rootx() + re_graph_frame.winfo_width(), re_graph_frame.winfo_rooty() + re_graph_frame.winfo_height())
         # time.sleep(2)
+        print(box)
+        print("above is the values")
         grab = ImageGrab.grab(bbox=box)
         grab2 = ImageGrab.grab(bbox=box2)
-        grab.save('template/right_ear.png')
-        grab2.save('template/left_ear.png')
+        grab3 = ImageGrab.grab()
+        grab3.save("template/kachra.png")
+        grab.save('template/left_ear.png')
+        grab2.save('template/right_ear.png')
+
     
     def take_ss(repeat=True):
         c.itemconfigure('le_point', state='hidden')
