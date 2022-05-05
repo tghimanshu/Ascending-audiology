@@ -24,11 +24,12 @@ conn = sqlite3.connect('ascending_audiology.db')
 cursor = conn.cursor()
 # cursor = conn.cursor(buffered=True)
 cursor.execute('''CREATE TABLE IF NOT EXISTS cases (
-    case_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
     number TEXT,
     age TEXT,
     gender TEXT,
+    case_id INTEGER,
     date TEXT,
     complaints TEXT,
     graphs TEXT,
@@ -1049,14 +1050,14 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^gender^', myGender.get())
         formatted_date = str(curr_date)
         formatted_date = formatted_date.split('-')
-        formatted_date = '-'.join(formatted_date[::-1])
+        formatted_date = '/'.join(formatted_date[::-1])
         # html_file = html_file.replace('^date^',  str(curr_date))
         html_file = html_file.replace('^date^',  formatted_date)
         try:
-            cursor.execute('SELECT * FROM cases')
-            html_file = html_file.replace('^case^', str(cursor.lastrowid + 1))
+            # cursor.execute('SELECT * FROM cases')
+            html_file = html_file.replace('^case^', case_id.get())
         except:
-            html_file = html_file.replace('^case^', str(1))
+            html_file = html_file.replace('^case^', case_id.get())
         html_file = html_file.replace('^complaints^', complaints.get())
         html_file = html_file.replace('^comments^', comments.get())
         html_file = html_file.replace('^r-oto^', oto_right.get())
@@ -1091,8 +1092,8 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('__', "<br />")
         with open('template/export.html', 'w') as f:
             f.write(html_file)
-        insert_data_list = [name.get(),number.get(), age.get(), myGender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]
-        cursor.execute("INSERT INTO `cases`(`name`, `number`, `age`, `gender`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", insert_data_list)
+        insert_data_list = [name.get(),number.get(), age.get(), myGender.get(), case_id.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]
+        cursor.execute("INSERT INTO `cases`(`name`, `number`, `age`, `gender`, `case_id`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", insert_data_list)
         conn.commit()
         driver = webdriver.Chrome()
         driver.get(os.getcwd() + '\\template\\export.html')
@@ -1108,14 +1109,14 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^gender^', myGender.get())
         formatted_date = str(curr_date)
         formatted_date = formatted_date.split('-')
-        formatted_date = '-'.join(formatted_date[::-1])
+        formatted_date = '/'.join(formatted_date[::-1])
         # html_file = html_file.replace('^date^',  str(curr_date))
         html_file = html_file.replace('^date^', formatted_date)
         try:
             cursor.execute('SELECT * FROM cases')
             html_file = html_file.replace('^case^', str(cursor.lastrowid + 1))
         except:
-            html_file = html_file.replace('^case^', str(1))
+            html_file = html_file.replace('^case^', case_id.get())
         html_file = html_file.replace('^complaints^', complaints.get())
         html_file = html_file.replace('^comments^', comments.get())
         html_file = html_file.replace('^r-oto^', oto_right.get())
@@ -1147,8 +1148,8 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^reccomendations^', rec.get())
         with open('template/export.html', 'w') as f:
             f.write(html_file)
-        insert_data_list = [name.get(), number.get(), age.get(), myGender.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get(), the_case[0]]
-        cursor.execute("UPDATE `cases` SET `name` = ?, `number` = ?, `age` = ?, `gender` = ?, `date` = ?, `complaints` = ?, `graphs` = ?, `comments` = ?, `r-oto` = ?, `l-oto` = ?, `r-rennie` = ?, `l-rennie` = ?, `weber` = ?, `r-sat` = ?, `l-sat` = ?, `r-srt` = ?, `l-srt` = ?, `r-wrs` = ?, `l-wrs` = ?, `r-ulc` = ?, `l-ulc` = ?, `right-ear` = ?, `left-ear` = ?, `recommendation` = ? WHERE `case_id` = ?", insert_data_list)
+        insert_data_list = [name.get(), number.get(), age.get(), myGender.get(), case_id.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get(), the_case[0]]
+        cursor.execute("UPDATE `cases` SET `name` = ?, `number` = ?, `age` = ?, `gender` = ?, `case_id` = ?, `date` = ?, `complaints` = ?, `graphs` = ?, `comments` = ?, `r-oto` = ?, `l-oto` = ?, `r-rennie` = ?, `l-rennie` = ?, `weber` = ?, `r-sat` = ?, `l-sat` = ?, `r-srt` = ?, `l-srt` = ?, `r-wrs` = ?, `l-wrs` = ?, `r-ulc` = ?, `l-ulc` = ?, `right-ear` = ?, `left-ear` = ?, `recommendation` = ? WHERE `case_id` = ?", insert_data_list)
         conn.commit()
         driver = webdriver.Chrome('chromewebdriver.exe')
         driver.get(os.getcwd() + '\\template\\export.html')
