@@ -222,6 +222,8 @@
       }
 
       .arrow-container .a,
+      .arrow-container .al,
+      .arrow-container .ar,
       .arrow-container .la,
       .arrow-container .ra {
         position: relative;
@@ -239,13 +241,33 @@
         background: black !important;
         transform: translateY(-50%);
       }
+      .al::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: 25%;
+        width: 75%;
+        height: 4%;
+        background: black !important;
+        transform: translateY(-50%);
+      }
+      .ar::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 25%;
+        width: 75%;
+        height: 4%;
+        background: black !important;
+        transform: translateY(-50%);
+      }
 
       .ra::before {
         content: "";
         position: absolute;
         top: 50%;
-        left: 0;
-        width: 100%;
+        right: 25%;
+        width: 75%;
         height: 4%;
         background: black !important;
         transform: translateY(-50%);
@@ -259,7 +281,7 @@
         border-top-color: transparent;
         border-bottom-color: transparent;
         top: 50%;
-        right: 0;
+        right: 25%;
         transform: translateY(-50%) translateX(50%);
         width: 0;
         height: 0;
@@ -270,8 +292,8 @@
         content: "";
         position: absolute;
         top: 50%;
-        left: 0;
-        width: 100%;
+        left: 25%;
+        width: 75%;
         height: 4%;
         background: black;
         transform: translateY(-50%);
@@ -286,7 +308,7 @@
         border-top-color: transparent;
         border-bottom-color: transparent;
         top: 50%;
-        left: 0;
+        left: 25%;
         transform: translateY(-50%) translateX(-50%);
       }
     </style>
@@ -326,7 +348,7 @@
             <div class="headings">Name:</div>
             <div class="values"></div>
             <div class="headings">Age/ Gender:</div>
-            <div class="values"> yrs / </div>
+            <div class="values">yrs /</div>
             <div class="headings">Date:</div>
             <div class="values">05/05/2022</div>
             <div class="headings">Case No.:</div>
@@ -386,8 +408,8 @@
                   <th>Weber</th>
                   <!-- <td>^r-weber^</td> -->
                   <!-- <td>^l-weber^</td> -->
-                  <td class="arrow-container">^r-weber^</td>
-                  <td class="arrow-container">^l-weber^</td>
+                  <td class="arrow-container"><div class="la"></div></td>
+                  <td class="arrow-container"><div class="ra"></div></td>
                 </tr>
               </table>
             </div>

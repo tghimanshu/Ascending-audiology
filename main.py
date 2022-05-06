@@ -1066,9 +1066,9 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^l-rennie^', tfr_left.get())
         if(myWeber.get() == "left"):
             html_file = html_file.replace('^r-weber^', "<div class='la'></div>")
-            html_file = html_file.replace('^l-weber^', "<div class='a'></div>")
+            html_file = html_file.replace('^l-weber^', "<div class='al'></div>")
         elif(myWeber.get() == "right"):
-            html_file = html_file.replace('^r-weber^', "<div class='a'></div>")
+            html_file = html_file.replace('^r-weber^', "<div class='ar'></div>")
             html_file = html_file.replace('^l-weber^', "<div class='ra'></div>")
         elif(myWeber.get() == "in"):
             html_file = html_file.replace('^r-weber^', "<div class='ra'></div>")
