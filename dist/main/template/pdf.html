@@ -8,14 +8,26 @@
     <style>
       @page {
         margin: 0;
-        size: A4;
+        size: A4 !important;
       }
 
       @media print {
+        @page {
+          margin: 0;
+          size: A4 !important;
+        }
+        .header-hr,
         .a::before,
         .la::before,
+        .ar::before,
+        .al::before,
         .ra::before {
           -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        * {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
         }
       }
 
@@ -23,6 +35,8 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
 
       .body {
@@ -121,7 +135,8 @@
 
       .row-4 {
         display: grid;
-        grid-template-columns: 0.8fr 1fr 2fr;
+        /* grid-template-columns: 0.8fr 1fr 2fr; */
+        grid-template-columns: 0.6fr 1fr 2fr;
       }
 
       .table-1,
@@ -129,7 +144,7 @@
       .table-3 {
         display: grid;
         grid-template-rows: auto 1fr;
-        padding: 0 10px;
+        padding: 0 6px;
         /* height: 100%; */
         /* background: red; */
       }
@@ -220,6 +235,8 @@
       .arrow-container {
         padding: 0;
       }
+      .arrow-container .rain,
+      .arrow-container .lain,
       .arrow-container .a,
       .arrow-container .al,
       .arrow-container .ar,
@@ -260,7 +277,6 @@
         background: black !important;
         transform: translateY(-50%);
       }
-
       .ra::before {
         content: "";
         position: absolute;
@@ -308,6 +324,57 @@
         border-bottom-color: transparent;
         top: 50%;
         left: 25%;
+        transform: translateY(-50%) translateX(-50%);
+      }
+
+      /* INdise */
+      .rain::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 25%;
+        width: 75%;
+        height: 4%;
+        background: black !important;
+        transform: translateY(-50%);
+      }
+
+      .rain::after {
+        content: "";
+        position: absolute;
+        border: 6px solid black;
+        border-right-color: transparent;
+        border-top-color: transparent;
+        border-bottom-color: transparent;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%) translateX(50%);
+        width: 0;
+        height: 0;
+      }
+
+      /* left arrow */
+      .lain::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: 25%;
+        width: 75%;
+        height: 4%;
+        background: black;
+        transform: translateY(-50%);
+        z-index: 20;
+      }
+
+      .lain::after {
+        content: "";
+        position: absolute;
+        border: 6px solid black;
+        border-left-color: transparent;
+        border-top-color: transparent;
+        border-bottom-color: transparent;
+        top: 50%;
+        left: 0;
         transform: translateY(-50%) translateX(-50%);
       }
     </style>
@@ -361,11 +428,11 @@
             <div class="title bold-me">Pure Tone Audiometry</div>
             <div class="main-graphs">
               <div class="right-ear">
-                <div class="">Right Ear</div>
+                <div style="font-weight: bold">Right Ear</div>
                 <img src="left_ear.png" alt="" />
               </div>
               <div class="left-ear">
-                <div class="">Left Ear</div>
+                <div style="font-weight: bold">Left Ear</div>
                 <img src="right_ear.png" alt="" />
               </div>
             </div>
@@ -394,7 +461,7 @@
               </div>
               <table>
                 <tr>
-                  <td></td>
+                  <th>512Hz</th>
                   <th>Right</th>
                   <th>Left</th>
                 </tr>

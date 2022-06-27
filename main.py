@@ -8,6 +8,8 @@ from PIL import Image, ImageTk, ImageGrab
 # import tkinter.tix as tix
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
+from subprocess import CREATE_NO_WINDOW
 import sqlite3
 import json
 import time
@@ -17,7 +19,12 @@ import os
 import tkcap
 
 
-chromedriver_autoinstaller.install()
+try:
+    chromedriver_autoinstaller.install()
+except:
+    pass
+service = Service()
+service.creationflags = CREATE_NO_WINDOW
 
 # conn = sqlite3.connect(host='localhost', user='root', password='', database='ascending_audiology')
 conn = sqlite3.connect('ascending_audiology.db')
@@ -83,15 +90,25 @@ def MainWindow(opened=False, openedData={}):
             tv.heading(col, command=lambda: \
                     treeview_sort_column(tv, col, not reverse))
         #sort end
-        tv['columns'] = ("Case No.", "Name", "Date")
-        tv.heading(0, text="Case No.", command=lambda: treeview_sort_column(tv, "Case No.", False))
+        tv['columns'] = ("Sr No.", "Name", "Date", "Case No.")
+        tv.heading(0, text="Sr No.", command=lambda: treeview_sort_column(tv, "Sr No.", False))
         tv.heading(1, text="Name", command=lambda: treeview_sort_column(tv, "Name", False))
         tv.heading(2, text="Date", command=lambda: treeview_sort_column(tv, "Date", False))
+        tv.heading(3, text="Case No.", command=lambda: treeview_sort_column(tv, "Case No.", False))
         tv.column(0, anchor=tk.N)
         tv.column(1, anchor=tk.N)
         tv.column(2, anchor=tk.N)
+        tv.column(3, anchor=tk.N)
         for r in res:
-            tv.insert('', 'end', values=(r[0], r[1], r[5]))
+            tv.insert('', 'end', values=(r[0], r[1], r[2], r[5]))
+        def delete_the_data():
+            itemIndex = tv.focus()
+            openedData = tv.item(itemIndex)
+            cursor.execute('DELETE FROM cases WHERE id = ?', [openedData['values'][0]])
+            conn.commit()
+            new_win.destroy()
+            openACase()
+            pass
 
         def open_the_data():
             itemIndex = tv.focus()
@@ -107,9 +124,10 @@ def MainWindow(opened=False, openedData={}):
             pass
         tv.bind('<Double-1>', lambda e: open_the_data())
         Button(new_win, text="Open", command=open_the_data).pack()
+        Button(new_win, text="Delete", command=delete_the_data).pack()
         new_win.mainloop()
     if opened:
-        cursor.execute("SELECT * FROM cases WHERE case_id = " + str(openedData['values'][0]))
+        cursor.execute("SELECT * FROM cases WHERE id = " + str(openedData['values'][0]))
         the_case = cursor.fetchone()
         # print(the_case)
     # Main Window Start
@@ -209,7 +227,7 @@ def MainWindow(opened=False, openedData={}):
     GRAPHS
     '''
     if opened:
-        points = json.loads(the_case[7])
+        points = json.loads(the_case[8])
         
     else:
         points = {
@@ -591,8 +609,8 @@ def MainWindow(opened=False, openedData={}):
             le_create_graph_lines()
         if(arg == 'red_sq_bkt_nr'):    
             le_check_y_for_same(arg, oc[0], oc[1])
-            c.create_image(oc[0]-15, oc[1], image=red_sq_bkt_nr, tags=arg+str(points_count[arg]))
-            points[arg].append([oc[0]-15, oc[1], arg+str(points_count[arg])])
+            c.create_image(oc[0]-20, oc[1], image=red_sq_bkt_nr, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
             points_count[arg]+=1
             le_create_graph_lines()
 
@@ -659,7 +677,7 @@ def MainWindow(opened=False, openedData={}):
             re_create_graph_lines()
         if(arg == 'blue_sq_bkt_nr'):
             re_check_y_for_same(arg, oc[0], oc[1])
-            c2.create_image(oc[0]+15, oc[1], image=blue_sq_bkt_nr, tags=arg+str(points_count[arg]))
+            c2.create_image(oc[0]+21, oc[1], image=blue_sq_bkt_nr, tags=arg+str(points_count[arg]))
             points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
             points_count[arg]+=1
             re_create_graph_lines()
@@ -733,9 +751,12 @@ def MainWindow(opened=False, openedData={}):
     blue_sq_bkt_nr = ImageTk.PhotoImage(blue_sq_bkt_nr)
 
 
+    active_btn = ""
     def insert_image(arg1, arg2, text):
         c.bind('<Button-1>', lambda event, arg=arg1: le_evn(event, arg))
         c2.bind('<Button-1>', lambda event, arg=arg2: re_evn(event, arg2))
+        nonlocal active_btn
+        active_btn = text
         for w in graph_button_frame.winfo_children():
             # print(w.cget('command'))
             # if not 'Cancel' in w.cget('text'):
@@ -782,6 +803,174 @@ def MainWindow(opened=False, openedData={}):
     c2.bind('<Motion>', re_mot)
 
 
+    def le_evn_opened(arg, p):
+        oc = (p[0], p[1])
+        if (arg == 'red_unmasked_sf'):
+            le_check_y_for_same(arg, oc[0], oc[1])
+            c.create_text(oc[0], oc[1], text='S',font='calibri 20', tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+        if (arg == 'red_aided_sf'):
+            le_check_y_for_same(arg, oc[0], oc[1])
+            c.create_text(oc[0], oc[1], text='A',font='calibri 20', tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+        if (arg == 'red_circle'):   
+            le_check_y_for_same(arg, oc[0], oc[1])
+            c.create_image(oc[0], oc[1], image=red_circle, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+            # try:
+            #     le_create_graph_lines()
+            # except:
+            #     pass
+        if (arg == 'red_triangle'):   
+            le_check_y_for_same(arg, oc[0], oc[1])
+            c.create_image(oc[0], oc[1], image=red_triangle, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+            # try:
+            #     le_create_graph_lines()
+            # except:
+            #     pass
+        if(arg == 'red_open_bracket'):
+            le_check_y_for_same(arg, oc[0], oc[1])
+            c.create_image(oc[0], oc[1], image=red_open_bracket, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+            # try:
+            #     le_create_graph_lines()
+            # except:
+            #     pass
+        if(arg == 'red_sq_bkt'):    
+            le_check_y_for_same(arg, oc[0], oc[1])
+            c.create_image(oc[0], oc[1], image=red_sq_bkt, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+            # try:
+            #     le_create_graph_lines()
+            # except:
+            #     pass
+        # No Response
+        if (arg == 'red_circle_nr'):   
+            le_check_y_for_same(arg, oc[0], oc[1])
+            c.create_image(oc[0], oc[1], image=red_circle_nr, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+            # try:
+            #     le_create_graph_lines()
+            # except:
+            #     pass
+        if (arg == 'red_triangle_nr'):   
+            le_check_y_for_same(arg, oc[0], oc[1])
+            c.create_image(oc[0], oc[1], image=red_triangle_nr, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+            # try:
+            #     le_create_graph_lines()
+            # except:
+            #     pass
+        if(arg == 'red_open_bracket_nr'):
+            le_check_y_for_same(arg, oc[0], oc[1])
+            c.create_image(oc[0], oc[1], image=red_open_bracket_nr, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+            # try:
+            #     le_create_graph_lines()
+            # except:
+            #     pass
+        if(arg == 'red_sq_bkt_nr'):    
+            le_check_y_for_same(arg, oc[0], oc[1])
+            c.create_image(oc[0]-20, oc[1], image=red_sq_bkt_nr, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0]-20, oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+
+    def re_evn_opened(arg, p):
+        oc = (p[0], p[1])
+        if (arg == 'blue_unmasked_sf'):
+            le_check_y_for_same(arg, oc[0], oc[1])
+            c2.create_text(oc[0], oc[1], text='S',font='calibri 20', tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+        if (arg == 'blue_aided_sf'):
+            le_check_y_for_same(arg, oc[0], oc[1])
+            c2.create_text(oc[0], oc[1], text='A',font='calibri 20', tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+        if(arg == 'blue_X'):
+            re_check_y_for_same(arg, oc[0], oc[1])
+            c2.create_image(oc[0], oc[1], image=blue_X, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg] += 1
+            try:
+                re_create_graph_lines()
+            except:
+                pass
+        if(arg == 'blue_square'):
+            re_check_y_for_same(arg, oc[0], oc[1])
+            c2.create_image(oc[0], oc[1], image=blue_square, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg] += 1
+            try:
+                re_create_graph_lines()
+            except:
+                pass
+        if(arg == 'blue_close_bracket'):
+            re_check_y_for_same(arg, oc[0], oc[1])
+            c2.create_image(oc[0], oc[1], image=blue_close_bracket, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+            try:
+                re_create_graph_lines()
+            except:
+                pass
+        if(arg == 'blue_sq_bkt'):
+            re_check_y_for_same(arg, oc[0], oc[1])
+            c2.create_image(oc[0], oc[1], image=blue_sq_bkt, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg] += 1
+            try:
+                re_create_graph_lines()
+            except:
+                pass
+        # No Response
+        if(arg == 'blue_X_nr'):
+            re_check_y_for_same(arg, oc[0], oc[1])
+            c2.create_image(oc[0], oc[1], image=blue_X_nr, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg] += 1
+            try:
+                re_create_graph_lines()
+            except:
+                pass
+        if(arg == 'blue_square_nr'):
+            re_check_y_for_same(arg, oc[0], oc[1])
+            c2.create_image(oc[0], oc[1], image=blue_square_nr, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+            try:
+                re_create_graph_lines()
+            except:
+                pass
+        if(arg == 'blue_close_bracket_nr'):
+            re_check_y_for_same(arg, oc[0], oc[1])
+            c2.create_image(oc[0], oc[1], image=blue_close_bracket_nr, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
+            points_count[arg] += 1
+            try:
+                re_create_graph_lines()
+            except:
+                pass
+        if(arg == 'blue_sq_bkt_nr'):
+            re_check_y_for_same(arg, oc[0], oc[1])
+            c2.create_image(oc[0]+20, oc[1], image=blue_sq_bkt_nr, tags=arg+str(points_count[arg]))
+            points[arg].append([oc[0]+20, oc[1], arg+str(points_count[arg])])
+            points_count[arg]+=1
+            try:
+                re_create_graph_lines()
+            except:
+                pass
+    
 
 
     def display_points():
@@ -806,12 +995,12 @@ def MainWindow(opened=False, openedData={}):
         # box = (le_graph_frame.winfo_rootx(),le_graph_frame.winfo_rooty(), 500 , 500)
         box2 = (re_graph_frame.winfo_rootx(), re_graph_frame.winfo_rooty(), re_graph_frame.winfo_rootx() + re_graph_frame.winfo_width(), re_graph_frame.winfo_rooty() + re_graph_frame.winfo_height())
         # time.sleep(2)
-        print(box)
-        print("above is the values")
+        # print(box)
+        # print("above is the values")
         grab = ImageGrab.grab(bbox=box)
         grab2 = ImageGrab.grab(bbox=box2)
-        grab3 = ImageGrab.grab()
-        grab3.save("template/kachra.png")
+        # grab3 = ImageGrab.grab()
+        # grab3.save("template/kachra.png")
         grab.save('template/left_ear.png')
         grab2.save('template/right_ear.png')
 
@@ -823,6 +1012,94 @@ def MainWindow(opened=False, openedData={}):
         create_ss()
         if repeat:
             take_ss(False)
+            pass
+    
+    def copy_func(_from, _to):
+        print(points[_from])
+        print(points[_to])
+        for a in points[_to]:
+            c2.delete(a[2])
+        points[_to] = points[_from]
+        for a in points[_to]:
+            a[2].replace(_from, _to)
+
+    def copy_func_rev(_to, _from):
+        print(points[_from])
+        print(points[_to])
+        for a in points[_to]:
+            c.delete(a[2])
+        points[_to] = points[_from]
+        for a in points[_to]:
+            a[2].replace(_from, _to)
+
+
+    def copy_left_to_right():
+        if (active_btn == "Unmasked AC"):
+            copy_func("red_circle", "blue_X")
+        if (active_btn == "Masked AC"):
+            copy_func("red_triangle", "blue_square")
+        if (active_btn == "Unmasked BC"):
+            copy_func("red_open_braket", "blue_close_bracket")
+        if (active_btn == "Masked AC"):
+            copy_func("red_sq_bkt", "blue_sq_bkt")
+
+        if (active_btn == "Unmasked AC NR"):
+            copy_func("red_circle_nr", "blue_X_nr")
+        if (active_btn == "Masked AC NR"):
+            copy_func("red_traingle_nr", "blue_square_nr")
+        if (active_btn == "Unmasked BC NR"):
+            copy_func("red_open_braket_nr", "blue_close_bracket_nr")
+        if (active_btn == "Masked AC NR"):
+            copy_func("red_sq_bkt_nr", "blue_sq_bkt_nr")
+
+        if (active_btn == "Unmasked SF"):
+            copy_func("red_unmased_sf", "blue_unmasked_sf")
+        if (active_btn == "Aided SF"):
+            copy_func("red_aided_sf", "blue_aided_sf")
+
+        for arg in points.keys():
+            for p in points[arg]:
+                if 'red' in arg:
+                    le_evn_opened(arg, p)
+                elif 'blue' in arg:
+                    re_evn_opened(arg, p)
+        le_create_graph_lines()
+        re_create_graph_lines()
+        pass
+
+    def copy_right_to_left():
+        if (active_btn == "Unmasked AC"):
+            copy_func_rev("red_circle", "blue_X")
+        if (active_btn == "Masked AC"):
+            copy_func_rev("red_triangle", "blue_square")
+        if (active_btn == "Unmasked BC"):
+            copy_func_rev("red_open_braket", "blue_close_bracket")
+        if (active_btn == "Masked AC"):
+            copy_func_rev("red_sq_bkt", "blue_sq_bkt")
+
+        if (active_btn == "Unmasked AC NR"):
+            copy_func_rev("red_circle_nr", "blue_X_nr")
+        if (active_btn == "Masked AC NR"):
+            copy_func_rev("red_traingle_nr", "blue_square_nr")
+        if (active_btn == "Unmasked BC NR"):
+            copy_func_rev("red_open_braket_nr", "blue_close_bracket_nr")
+        if (active_btn == "Masked AC NR"):
+            copy_func_rev("red_sq_bkt_nr", "blue_sq_bkt_nr")
+
+        if (active_btn == "Unmasked SF"):
+            copy_func_rev("red_unmased_sf", "blue_unmasked_sf")
+        if (active_btn == "Aided SF"):
+            copy_func_rev("red_aided_sf", "blue_aided_sf")
+
+        for arg in points.keys():
+            for p in points[arg]:
+                if 'red' in arg:
+                    le_evn_opened(arg, p)
+                elif 'blue' in arg:
+                    re_evn_opened(arg, p)
+        le_create_graph_lines()
+        re_create_graph_lines()
+        pass
         
 
 
@@ -842,6 +1119,8 @@ def MainWindow(opened=False, openedData={}):
     a_sf = Button(graph_button_frame, text="Aided SF", command=lambda x='red_aided_sf', y='blue_aided_sf', text="Aided SF": insert_image(x, y, text)).pack(fill="x", pady=2)
 
     rem_points = Button(graph_button_frame, bg='lightblue', text='Remove Points', command=bind_remove_points).pack(fill="x", pady=2)
+    copy_last_left = Button(graph_button_frame, bg='lightblue', text='Copy LTR', command=copy_left_to_right).pack(fill="x", pady=2)
+    copy_last_right = Button(graph_button_frame, bg='lightblue', text='Copy RTL', command=copy_right_to_left).pack(fill="x", pady=2)
 
     span_ss = Button(graph_button_frame, text='Get SS', bg='lightgreen', command=take_ss).pack(fill="x", pady=2)
 
@@ -978,11 +1257,11 @@ def MainWindow(opened=False, openedData={}):
     right_ear.grid(row=0, column=1, columnspan=7, sticky="we")
 
     def re_default():
-        right_ear.insert(0, "Hearing Sensitivity with normal limits")
+        right_ear.insert(0, "Hearing sensitivity within normal limits")
         pass
 
     def le_default():
-        left_ear.insert(0, "Hearing Sensitivity with normal limits")
+        left_ear.insert(0, "Hearing sensitivity within normal limits")
         pass
 
     left_ear = ttk.Entry(ears, width=100)
@@ -1003,15 +1282,33 @@ def MainWindow(opened=False, openedData={}):
     '''
     RECMMENDATIONS
     '''
-    recommendation = ttk.Frame(window)
-    recommendation.pack(padx=20)
+    recc_frame = ttk.Frame(window)
+    recc_frame.pack(padx=20)
 
+    recc = ttk.Entry(recc_frame, width=100)
+    recc.grid(row=0, column=1, columnspan=7, sticky="we")
 
-    rec = ttk.Entry(recommendation, width=100)
-    rec.grid(row=0, column=1, columnspan=7, sticky="we")
+    recc_label = ttk.Label(recc_frame, text="Recommendations : ")
+    recc_label.grid(row=0, column=0, padx=10, pady=10)
 
-    rec_label = ttk.Label(recommendation, text="Recommendations : ")
-    rec_label.grid(row=0, column=0, padx=10, pady=10)
+    '''
+    PTA
+    '''
+    pta_frame = ttk.Frame(window)
+    pta_frame.pack(padx=20)
+
+    left_pta = ttk.Entry(pta_frame, width=25)
+    left_pta.grid(row=0, column=1)
+
+    left_pta_label = ttk.Label(pta_frame, text="PTA Left: ")
+    left_pta_label.grid(row=0, column=0, padx=10, pady=10)
+
+    right_pta = ttk.Entry(pta_frame, width=25)
+    right_pta.grid(row=0, column=3)
+
+    right_pta_label = ttk.Label(pta_frame, text="PTA Right: ")
+    right_pta_label.grid(row=0, column=2, padx=10, pady=10)
+
 
     from datetime import datetime
 
@@ -1031,14 +1328,15 @@ def MainWindow(opened=False, openedData={}):
         for i in points[lpval]:
             if (int(i[0]/13.5) == 10 or int(i[0]/13.5) == 14 or int(i[0]/13.5) == 18):
                 lPtaVal += (-5 * -int(i[1]/13.5-2))
+                print(i)
             pass
         for i in points[rpval]:
             if (int(i[0]/13.5) == 10 or int(i[0]/13.5) == 14 or int(i[0]/13.5) == 18):
                 rPtaVal += (-5 * -int(i[1]/13.5-2))
             pass
-        lPtaVal = lPtaVal/len(points[lpval])
-        rPtaVal = rPtaVal/len(points[rpval])
-        return [str(round(lPtaVal,2)), str(round(rPtaVal,2))]
+        lPtaVal = lPtaVal/3
+        rPtaVal = rPtaVal/3
+        return [str(round(rPtaVal,2)), str(round(lPtaVal,2))]
         pass
 
     def submit_form():
@@ -1065,19 +1363,25 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^r-rennie^', tfr_right.get())
         html_file = html_file.replace('^l-rennie^', tfr_left.get())
         if(myWeber.get() == "left"):
-            html_file = html_file.replace('^r-weber^', "<div class='la'></div>")
-            html_file = html_file.replace('^l-weber^', "<div class='al'></div>")
-        elif(myWeber.get() == "right"):
             html_file = html_file.replace('^r-weber^', "<div class='ar'></div>")
             html_file = html_file.replace('^l-weber^', "<div class='ra'></div>")
+        elif(myWeber.get() == "right"):
+            html_file = html_file.replace('^r-weber^', "<div class='la'></div>")
+            html_file = html_file.replace('^l-weber^', "<div class='al'></div>")
         elif(myWeber.get() == "in"):
-            html_file = html_file.replace('^r-weber^', "<div class='ra'></div>")
-            html_file = html_file.replace('^l-weber^', "<div class='la'></div>")
+            html_file = html_file.replace('^r-weber^', "<div class='rain'></div>")
+            html_file = html_file.replace('^l-weber^', "<div class='lain'></div>")
         elif(myWeber.get() == "out"):
             html_file = html_file.replace('^r-weber^', "<div class='la'></div>")
             html_file = html_file.replace('^l-weber^', "<div class='ra'></div>")
-        html_file = html_file.replace('^r-pta^', getPta(points)[0])
-        html_file = html_file.replace('^l-pta^', getPta(points)[1])
+        if(left_pta.get() != ""):
+            html_file = html_file.replace('^l-pta^', left_pta.get())
+        else:
+            html_file = html_file.replace('^l-pta^', getPta(points)[0])
+        if(right_pta.get() != ""):
+            html_file = html_file.replace('^r-pta^', right_pta.get())
+        else:
+            html_file = html_file.replace('^r-pta^', getPta(points)[0])
         html_file = html_file.replace('^r-sat^', sa_right_sat.get())
         html_file = html_file.replace('^l-sat^', sa_left_sat.get())
         html_file = html_file.replace('^r-srt^', sa_right_srt.get())
@@ -1088,14 +1392,14 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^l-ulc^', sa_left_wrs.get())
         html_file = html_file.replace('^right-ear^', right_ear.get())
         html_file = html_file.replace('^left-ear^', left_ear.get())
-        html_file = html_file.replace('^reccomendations^', rec.get())
+        html_file = html_file.replace('^reccomendations^', recc.get())
         html_file = html_file.replace('__', "<br />")
         with open('template/export.html', 'w') as f:
             f.write(html_file)
-        insert_data_list = [name.get(),number.get(), age.get(), myGender.get(), case_id.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get()]
+        insert_data_list = [name.get(),number.get(), age.get(), myGender.get(), case_id.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), right_pta.get()]
         cursor.execute("INSERT INTO `cases`(`name`, `number`, `age`, `gender`, `case_id`, `date`, `complaints`, `graphs`, `comments`, `r-oto`, `l-oto`, `r-rennie`, `l-rennie`, `weber`, `r-sat`, `l-sat`, `r-srt`, `l-srt`, `r-wrs`, `l-wrs`, `r-ulc`, `l-ulc`, `right-ear`, `left-ear`, `recommendation`) VALUES (?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", insert_data_list)
         conn.commit()
-        driver = webdriver.Chrome()
+        driver = webdriver.Chrome(service=service)
         driver.get(os.getcwd() + '\\template\\export.html')
         driver.maximize_window()
         driver.execute_script('window.print()')
@@ -1124,19 +1428,27 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^r-rennie^', tfr_right.get())
         html_file = html_file.replace('^l-rennie^', tfr_left.get())
         if(myWeber.get() == "left"):
-            html_file = html_file.replace('^r-weber^', "<div class='la'></div>")
-            html_file = html_file.replace('^l-weber^', "<div class='a'></div>")
-        elif(myWeber.get() == "right"):
-            html_file = html_file.replace('^r-weber^', "<div class='a'></div>")
+            html_file = html_file.replace('^r-weber^', "<div class='ar'></div>")
             html_file = html_file.replace('^l-weber^', "<div class='ra'></div>")
+        elif(myWeber.get() == "right"):
+            html_file = html_file.replace('^r-weber^', "<div class='la'></div>")
+            html_file = html_file.replace('^l-weber^', "<div class='al'></div>")
         elif(myWeber.get() == "in"):
-            html_file = html_file.replace('^r-weber^', "<div class='ra'></div>")
-            html_file = html_file.replace('^l-weber^', "<div class='la'></div>")
+            html_file = html_file.replace('^r-weber^', "<div class='rain'></div>")
+            html_file = html_file.replace('^l-weber^', "<div class='lain'></div>")
         elif(myWeber.get() == "out"):
             html_file = html_file.replace('^r-weber^', "<div class='la'></div>")
             html_file = html_file.replace('^l-weber^', "<div class='ra'></div>")
         html_file = html_file.replace('^r-sat^', sa_right_sat.get())
         html_file = html_file.replace('^l-sat^', sa_left_sat.get())
+        if(left_pta.get() != ""):
+            html_file = html_file.replace('^l-pta^', left_pta.get())
+        else:
+            html_file = html_file.replace('^l-pta^', getPta(points)[0])
+        if(right_pta.get() != ""):
+            html_file = html_file.replace('^r-pta^', right_pta.get())
+        else:
+            html_file = html_file.replace('^r-pta^', getPta(points)[0])
         html_file = html_file.replace('^r-srt^', sa_right_srt.get())
         html_file = html_file.replace('^l-srt^', sa_left_srt.get())
         html_file = html_file.replace('^r-wrs^', sa_right_wrs.get())
@@ -1145,13 +1457,13 @@ def MainWindow(opened=False, openedData={}):
         html_file = html_file.replace('^l-ulc^', sa_left_wrs.get())
         html_file = html_file.replace('^right-ear^', right_ear.get())
         html_file = html_file.replace('^left-ear^', left_ear.get())
-        html_file = html_file.replace('^reccomendations^', rec.get())
+        html_file = html_file.replace('^reccomendations^', recc.get())
         with open('template/export.html', 'w') as f:
             f.write(html_file)
-        insert_data_list = [name.get(), number.get(), age.get(), myGender.get(), case_id.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), rec.get(), the_case[0]]
+        insert_data_list = [name.get(), number.get(), age.get(), myGender.get(), case_id.get(), str(curr_date), complaints.get(), json.dumps(points), comments.get(), oto_right.get(), oto_left.get(), tfr_right.get(), tfr_left.get(), myWeber.get(), sa_right_sat.get(), sa_left_sat.get(), sa_right_srt.get(), sa_left_srt.get(), sa_right_wrs.get(), sa_left_wrs.get(), sa_right_ulc.get(), sa_left_ulc.get(), right_ear.get(), left_ear.get(), right_pta.get(), the_case[0]]
         cursor.execute("UPDATE `cases` SET `name` = ?, `number` = ?, `age` = ?, `gender` = ?, `case_id` = ?, `date` = ?, `complaints` = ?, `graphs` = ?, `comments` = ?, `r-oto` = ?, `l-oto` = ?, `r-rennie` = ?, `l-rennie` = ?, `weber` = ?, `r-sat` = ?, `l-sat` = ?, `r-srt` = ?, `l-srt` = ?, `r-wrs` = ?, `l-wrs` = ?, `r-ulc` = ?, `l-ulc` = ?, `right-ear` = ?, `left-ear` = ?, `recommendation` = ? WHERE `case_id` = ?", insert_data_list)
         conn.commit()
-        driver = webdriver.Chrome('chromewebdriver.exe')
+        driver = webdriver.Chrome(service=service)
         driver.get(os.getcwd() + '\\template\\export.html')
         driver.maximize_window()
         driver.execute_script('window.print()')
@@ -1177,199 +1489,26 @@ def MainWindow(opened=False, openedData={}):
         number.insert(0,the_case[2])
         age.insert(0, the_case[3])
         myGender.set(the_case[4])
-        complaints.insert(0, the_case[6])
-        comments.insert(0, the_case[8])
-        oto_right.insert(0, the_case[9])
-        oto_left.insert(0, the_case[10])
-        tfr_right.insert(0, the_case[11])
-        tfr_left.insert(0, the_case[12])
-        myWeber.set(the_case[13])
-        sa_right_sat.insert(0, the_case[14])
-        sa_left_sat.insert(0, the_case[15])
-        sa_right_srt.insert(0, the_case[16])
-        sa_left_srt.insert(0, the_case[17])
-        sa_right_wrs.insert(0, the_case[18])
-        sa_left_wrs.insert(0, the_case[19])
-        sa_right_wrs.insert(0, the_case[20])
-        sa_left_wrs.insert(0, the_case[21])
-        right_ear.insert(0, the_case[22])
-        left_ear.insert(0, the_case[23])
-        rec.insert(0, the_case[24])
+        complaints.insert(0, the_case[7])
+        comments.insert(0, the_case[9])
+        oto_right.insert(0, the_case[10])
+        oto_left.insert(0, the_case[11])
+        tfr_right.insert(0, the_case[12])
+        tfr_left.insert(0, the_case[13])
+        myWeber.set(the_case[14])
+        sa_right_sat.insert(0, the_case[15])
+        sa_left_sat.insert(0, the_case[16])
+        sa_right_srt.insert(0, the_case[17])
+        sa_left_srt.insert(0, the_case[18])
+        sa_right_wrs.insert(0, the_case[19])
+        sa_left_wrs.insert(0, the_case[20])
+        sa_right_wrs.insert(0, the_case[21])
+        sa_left_wrs.insert(0, the_case[22])
+        right_ear.insert(0, the_case[23])
+        left_ear.insert(0, the_case[24])
+        right_pta.insert(0, the_case[25])
 
         getPta(points)
-        
-        def le_evn_opened(arg, p):
-            oc = (p[0], p[1])
-            if (arg == 'red_unmasked_sf'):
-                le_check_y_for_same(arg, oc[0], oc[1])
-                c.create_text(oc[0], oc[1], text='S',font='calibri 20', tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-            if (arg == 'red_aided_sf'):
-                le_check_y_for_same(arg, oc[0], oc[1])
-                c.create_text(oc[0], oc[1], text='A',font='calibri 20', tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-            if (arg == 'red_circle'):   
-                le_check_y_for_same(arg, oc[0], oc[1])
-                c.create_image(oc[0], oc[1], image=red_circle, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-                # try:
-                #     le_create_graph_lines()
-                # except:
-                #     pass
-            if (arg == 'red_triangle'):   
-                le_check_y_for_same(arg, oc[0], oc[1])
-                c.create_image(oc[0], oc[1], image=red_triangle, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-                # try:
-                #     le_create_graph_lines()
-                # except:
-                #     pass
-            if(arg == 'red_open_bracket'):
-                le_check_y_for_same(arg, oc[0], oc[1])
-                c.create_image(oc[0], oc[1], image=red_open_bracket, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-                # try:
-                #     le_create_graph_lines()
-                # except:
-                #     pass
-            if(arg == 'red_sq_bkt'):    
-                le_check_y_for_same(arg, oc[0], oc[1])
-                c.create_image(oc[0], oc[1], image=red_sq_bkt, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-                # try:
-                #     le_create_graph_lines()
-                # except:
-                #     pass
-            # No Response
-            if (arg == 'red_circle_nr'):   
-                le_check_y_for_same(arg, oc[0], oc[1])
-                c.create_image(oc[0], oc[1], image=red_circle_nr, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-                # try:
-                #     le_create_graph_lines()
-                # except:
-                #     pass
-            if (arg == 'red_triangle_nr'):   
-                le_check_y_for_same(arg, oc[0], oc[1])
-                c.create_image(oc[0], oc[1], image=red_triangle_nr, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-                # try:
-                #     le_create_graph_lines()
-                # except:
-                #     pass
-            if(arg == 'red_open_bracket_nr'):
-                le_check_y_for_same(arg, oc[0], oc[1])
-                c.create_image(oc[0], oc[1], image=red_open_bracket_nr, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-                # try:
-                #     le_create_graph_lines()
-                # except:
-                #     pass
-            if(arg == 'red_sq_bkt_nr'):    
-                le_check_y_for_same(arg, oc[0], oc[1])
-                c.create_image(oc[0], oc[1], image=red_sq_bkt_nr, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-                # try:
-                #     le_create_graph_lines()
-                # except:
-                #     pass
-
-
-        def re_evn_opened(arg, p):
-            oc = (p[0], p[1])
-            if (arg == 'blue_unmasked_sf'):
-                le_check_y_for_same(arg, oc[0], oc[1])
-                c2.create_text(oc[0], oc[1], text='S',font='calibri 20', tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-            if (arg == 'blue_aided_sf'):
-                le_check_y_for_same(arg, oc[0], oc[1])
-                c2.create_text(oc[0], oc[1], text='A',font='calibri 20', tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-            if(arg == 'blue_X'):
-                re_check_y_for_same(arg, oc[0], oc[1])
-                c2.create_image(oc[0], oc[1], image=blue_X, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg] += 1
-                try:
-                    re_create_graph_lines()
-                except:
-                    pass
-            if(arg == 'blue_square'):
-                re_check_y_for_same(arg, oc[0], oc[1])
-                c2.create_image(oc[0], oc[1], image=blue_square, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg] += 1
-                try:
-                    re_create_graph_lines()
-                except:
-                    pass
-            if(arg == 'blue_close_bracket'):
-                re_check_y_for_same(arg, oc[0], oc[1])
-                c2.create_image(oc[0], oc[1], image=blue_close_bracket, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-                try:
-                    re_create_graph_lines()
-                except:
-                    pass
-            if(arg == 'blue_sq_bkt'):
-                re_check_y_for_same(arg, oc[0], oc[1])
-                c2.create_image(oc[0], oc[1], image=blue_sq_bkt, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg] += 1
-                try:
-                    re_create_graph_lines()
-                except:
-                    pass
-            # No Response
-            if(arg == 'blue_X_nr'):
-                re_check_y_for_same(arg, oc[0], oc[1])
-                c2.create_image(oc[0], oc[1], image=blue_X_nr, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg] += 1
-                try:
-                    re_create_graph_lines()
-                except:
-                    pass
-            if(arg == 'blue_square_nr'):
-                re_check_y_for_same(arg, oc[0], oc[1])
-                c2.create_image(oc[0], oc[1], image=blue_square_nr, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-                try:
-                    re_create_graph_lines()
-                except:
-                    pass
-            if(arg == 'blue_close_bracket_nr'):
-                re_check_y_for_same(arg, oc[0], oc[1])
-                c2.create_image(oc[0], oc[1], image=blue_close_bracket_nr, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg] += 1
-                try:
-                    re_create_graph_lines()
-                except:
-                    pass
-            if(arg == 'blue_sq_bkt_nr'):
-                re_check_y_for_same(arg, oc[0], oc[1])
-                c2.create_image(oc[0], oc[1], image=blue_sq_bkt_nr, tags=arg+str(points_count[arg]))
-                points[arg].append([oc[0], oc[1], arg+str(points_count[arg])])
-                points_count[arg]+=1
-                try:
-                    re_create_graph_lines()
-                except:
-                    pass
         
     for arg in points.keys():
         for p in points[arg]:
